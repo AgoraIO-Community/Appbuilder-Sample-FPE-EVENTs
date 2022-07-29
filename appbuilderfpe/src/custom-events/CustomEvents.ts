@@ -178,7 +178,7 @@ class CustomEvents {
     }
   };
 
-  printEvents = () => {
+  printEvents = async () => {
     console.log(
       'CUSTOM_EVENT_API: EVENTS source',
       EventUtils.getEvents(EventSourceEnum.core),
@@ -187,6 +187,13 @@ class CustomEvents {
       'CUSTOM_EVENT_API: EVENTS fpe',
       EventUtils.getEvents(EventSourceEnum.fpe),
     );
+    const myId = RTMEngine.getInstance().localUid;
+    try {
+      const myattr = await this.engine.getUserAttributesByUid(myId);
+      console.log('CUSTOM_EVENT_API: user attr', myattr);
+    } catch (error) {
+      console.log('CUSTOM_EVENT_API: EVENTS fpe error: ', error);
+    }
   };
   // once = (name: string, listener: any) => {
   //   console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
