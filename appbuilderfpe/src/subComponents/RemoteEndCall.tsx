@@ -9,20 +9,31 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {StyleSheet} from 'react-native';
-import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {controlMessageEnum} from '../components/ChatContext';
+import {BtnTemplate, UidType} from '../../agora-rn-uikit';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../utils/useSendControlMessage';
 
-const RemoteEndCall = (props: {uid: number; isHost: boolean}) => {
-  const {sendControlMessageToUid} = useContext(ChatContext);
+export interface RemoteEndCallProps {
+  uid: UidType;
+  isHost: boolean;
+}
+const RemoteEndCall = (props: RemoteEndCallProps) => {
+  const sendCtrlMsgToUid = useSendControlMessage();
   return props.isHost && String(props.uid)[0] !== '1' ? (
     <BtnTemplate
       style={style.remoteButton}
       onPress={() => {
-        sendControlMessageToUid(controlMessageEnum.kickUser, props.uid);
+        sendCtrlMsgToUid(
+          CONTROL_MESSAGE_TYPE.controlMessageToUid,
+          controlMessageEnum.kickUser,
+          props.uid,
+        );
       }}
-      color='#FD0845'
+      color="#FD0845"
       name={'remoteEndCall'} // earlier was endCall, added remoteEndCall
     />
   ) : (

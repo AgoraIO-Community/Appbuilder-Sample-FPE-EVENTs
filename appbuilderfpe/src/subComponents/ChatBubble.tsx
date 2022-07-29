@@ -10,31 +10,38 @@
 *********************************************
 */
 import React, {useContext} from 'react';
-import {View, Text, StyleSheet, Linking, Platform} from 'react-native';
+import {View, Text, StyleSheet, Linking} from 'react-native';
 import Hyperlink from 'react-native-hyperlink';
-import ChatContext, {channelMessage} from '../components/ChatContext';
+import {useString} from '../utils/useString';
+import {ChatBubbleProps} from '../components/ChatContext';
 import ColorContext from '../components/ColorContext';
+import {isWeb} from '../utils/common';
+import useUserList from '../utils/useUserList';
 
-const ChatBubble = (props: channelMessage) => {
-  const {userList} = useContext(ChatContext);
+const ChatBubble = (props: ChatBubbleProps) => {
+  const {renderList} = useUserList();
   const {primaryColor} = useContext(ColorContext);
-  let {isLocal, msg, ts, uid} = props;
+  let {isLocal, message, timestamp, uid} = props;
   let time =
-    new Date(parseInt(ts)).getHours() +
+    new Date(parseInt(timestamp)).getHours() +
     ':' +
-    new Date(parseInt(ts)).getMinutes();
+    new Date(parseInt(timestamp)).getMinutes();
   const handleUrl = (url: string) => {
-    if (Platform.OS === 'web') {
+    if (isWeb) {
       window.open(url, '_blank');
     } else {
       Linking.openURL(url);
     }
   };
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   return (
     <View>
       <View style={isLocal ? style.chatSenderViewLocal : style.chatSenderView}>
         <Text style={isLocal ? style.timestampTextLocal : style.timestampText}>
-          {userList[uid] ? userList[uid].name : 'User'} | {time + ' '}
+          {renderList[uid] ? renderList[uid].name : remoteUserDefaultLabel} |{' '}
+          {time + ' '}
         </Text>
       </View>
       <View
@@ -54,7 +61,7 @@ const ChatBubble = (props: channelMessage) => {
           <Text
             style={isLocal ? style.whiteText : style.blackText}
             selectable={true}>
-            {msg.slice(1) + ' '}
+            {message}
           </Text>
         </Hyperlink>
       </View>
@@ -86,7 +93,7 @@ const style = StyleSheet.create({
     fontWeight: '500',
     fontSize: 12,
     flex: 1,
-    // textAlign: 'right',
+    textAlign: 'left',
   },
   timestampTextLocal: {
     color: $config.PRIMARY_FONT_COLOR + '60',

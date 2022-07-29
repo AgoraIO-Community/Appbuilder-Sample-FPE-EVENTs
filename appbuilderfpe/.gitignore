@@ -63,7 +63,7 @@ buck-out/
 /ios/Pods/
 
 #UI Kit
-agora-rn-uikit/
+#agora-rn-uikit/
 
 #built website
 dist/
@@ -72,3 +72,6 @@ dist/
 .electron/
 .webpack/
 out/
+
+#FPE plugin folder
+#template/test-fpe/*

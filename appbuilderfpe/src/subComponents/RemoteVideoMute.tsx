@@ -9,29 +9,37 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
+import React from 'react';
 import {StyleSheet} from 'react-native';
-import ChatContext, {controlMessageEnum} from '../components/ChatContext';
-import ColorContext from '../components/ColorContext';
-import {BtnTemplate} from '../../agora-rn-uikit';
+import {controlMessageEnum} from '../components/ChatContext';
+import {BtnTemplate, UidType} from '../../agora-rn-uikit';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../utils/useSendControlMessage';
+
 /**
  * Component to mute / unmute remote video.
  * Sends a control message to another user over RTM if the local user is a host.
  * If the local user is not a host, it simply renders an image
  */
-const RemoteVideoMute = (props: {
-  uid: number;
+export interface RemoteVideoMuteProps {
+  uid: UidType;
   video: boolean;
   isHost: boolean;
-}) => {
+}
+const RemoteVideoMute = (props: RemoteVideoMuteProps) => {
   const {isHost = false} = props;
-  const {sendControlMessageToUid} = useContext(ChatContext);
+  const sendCtrlMsgToUid = useSendControlMessage();
 
   return String(props.uid)[0] !== '1' ? (
     <BtnTemplate
       disabled={!isHost}
       onPress={() => {
-        sendControlMessageToUid(controlMessageEnum.muteVideo, props.uid);
+        sendCtrlMsgToUid(
+          CONTROL_MESSAGE_TYPE.controlMessageToUid,
+          controlMessageEnum.muteVideo,
+          props.uid,
+        );
       }}
       style={style.buttonIconCam}
       name={props.video ? 'videocam' : 'videocamOff'}

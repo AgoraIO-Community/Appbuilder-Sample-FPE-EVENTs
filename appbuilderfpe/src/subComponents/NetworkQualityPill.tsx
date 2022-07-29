@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+// @ts-nocheck
+import React, {useContext, useState} from 'react';
 import {
   View,
   Image,
@@ -9,7 +10,12 @@ import {
   ViewStyle,
   StyleProp,
 } from 'react-native';
+import {useString} from '../utils/useString';
 import {networkIconsObject} from '../components/NetworkQualityContext';
+import {NetworkQualities} from 'src/language/default-labels/videoCallScreenLabels';
+import {isWeb} from '../utils/common';
+import NetworkQualityContext from '../components/NetworkQualityContext';
+import {RenderInterface, UidType} from '../../agora-rn-uikit';
 
 /**
  *
@@ -22,17 +28,45 @@ import {networkIconsObject} from '../components/NetworkQualityContext';
  *
  */
 export const NetworkQualityPill = ({
-  networkStat,
+  user,
   primaryColor,
   small,
   rootStyle,
 }: {
-  networkStat: number;
+  user: RenderInterface;
   primaryColor: any;
   small?: boolean;
   rootStyle?: StyleProp<ViewStyle>;
 }) => {
   const [networkTextVisible, setNetworkTextVisible] = useState(false);
+  //commented for v1 release
+  //const getLabel = useString<NetworkQualities>('networkQualityLabel');
+  const getLabel = (quality: string) => {
+    switch (quality) {
+      case 'unknown':
+        return 'Unknown';
+      case 'excellent':
+        return 'Excellent';
+      case 'good':
+        return 'Good';
+      case 'bad':
+        return 'Bad';
+      case 'veryBad':
+        return 'Very Bad';
+      case 'unpublished':
+        return 'Unpublished';
+      case 'loading':
+        return 'Loading';
+      default:
+        return 'Loading';
+    }
+  };
+  const networkQualityStat = useContext(NetworkQualityContext);
+  const networkStat = networkQualityStat[user.uid]
+    ? networkQualityStat[user.uid]
+    : user.audio || user.video
+    ? 8
+    : 7;
 
   return (
     <View
@@ -42,8 +76,7 @@ export const NetworkQualityPill = ({
           opacity: networkTextVisible ? 1 : 0.8,
         },
         rootStyle,
-      ]}
-    >
+      ]}>
       <PlatformSpecificWrapper {...{networkTextVisible, setNetworkTextVisible}}>
         <View style={[style.networkIndicatorBackdrop]}>
           <Image
@@ -68,9 +101,8 @@ export const NetworkQualityPill = ({
             style={[
               style.networkPillText,
               {fontSize: small ? 14 : 15, userSelect: 'none'},
-            ]}
-          >
-            {networkIconsObject[networkStat].text}
+            ]}>
+            {getLabel(networkIconsObject[networkStat].text)}
           </Text>
         )}
       </PlatformSpecificWrapper>
@@ -83,7 +115,7 @@ const PlatformSpecificWrapper = ({
   setNetworkTextVisible,
   children,
 }: any) => {
-  return Platform.OS !== 'web' ? (
+  return !isWeb ? (
     <Pressable
       style={{
         height: '100%',
@@ -93,8 +125,7 @@ const PlatformSpecificWrapper = ({
       }}
       onPress={() => {
         setNetworkTextVisible((visible: boolean) => !visible);
-      }}
-    >
+      }}>
       {children}
     </Pressable>
   ) : (
@@ -114,8 +145,7 @@ const PlatformSpecificWrapper = ({
       }}
       onMouseLeave={() => {
         setNetworkTextVisible(false);
-      }}
-    >
+      }}>
       {children}
     </div>
   );

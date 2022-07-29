@@ -10,68 +10,225 @@
 *********************************************
 */
 import React, {useContext, useState} from 'react';
-import {View, Text, Platform, StyleSheet, Dimensions} from 'react-native';
+import {View, Text, StyleSheet, ViewStyle, TextStyle} from 'react-native';
 import icons from '../assets/icons';
-import Settings from './Settings';
-import CopyJoinInfo from '../subComponents/CopyJoinInfo';
+import Settings, {
+  SettingsWithViewWrapper,
+  SettingsIconButtonProps,
+} from './Settings';
+import CopyJoinInfo, {CopyJoinInfoProps} from '../subComponents/CopyJoinInfo';
 import {SidePanelType} from '../subComponents/SidePanelEnum';
 import {navHolder} from '../../theme.json';
-import Layout from '../subComponents/LayoutEnum';
 import ChatContext from '../components/ChatContext';
-import mobileAndTabletCheck from '../utils/mobileWebTest';
-import {BtnTemplate} from '../../agora-rn-uikit';
-import {ImageIcon} from '../../agora-rn-uikit';
+import isMobileOrTablet from '../utils/isMobileOrTablet';
+import {
+  BtnTemplate,
+  BtnTemplateInterface,
+  ImageIcon,
+} from '../../agora-rn-uikit';
 import LiveStreamContext from './livestream';
 import {numFormatter} from '../utils/index';
+import {useLayout} from '../utils/useLayout';
+import {useChatNotification} from '../components/chat-notification/useChatNotification';
+import useCustomLayout from '../pages/video-call/CustomLayout';
+import {isIOS, isValidReactComponent, isWeb} from '../utils/common';
+import {useChangeDefaultLayout} from '../pages/video-call/DefaultLayouts';
+import {useRecording} from '../subComponents/recording/useRecording';
+import LayoutIconDropdown from '../subComponents/LayoutIconDropdown';
+import DimensionContext from './dimension/DimensionContext';
+import {useString} from '../utils/useString';
+import {useMeetingInfo} from './meeting-info/useMeetingInfo';
+import {useSidePanel} from '../utils/useSidePanel';
+import {useChatUIControl} from './chat-ui/useChatUIControl';
+import {
+  ButtonTemplateName,
+  useButtonTemplate,
+} from '../utils/useButtonTemplate';
+import Styles from './styles';
 
-const Navbar = (props: any) => {
-  const {messageStore, onlineUsersCount} = useContext(ChatContext);
+const RenderSeparator = () => {
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
+  return isWeb && isDesktop ? (
+    <View style={style.navItem}>
+      <View style={style.navItemSeparator}></View>
+    </View>
+  ) : (
+    <View style={{marginHorizontal: 2}}></View>
+  );
+};
+
+const ParticipantsCountView = () => {
+  const {onlineUsersCount} = useContext(ChatContext);
+  return (
+    <>
+      {onlineUsersCount !== 0 && (
+        <View style={[style.navItem, {justifyContent: 'center'}]}>
+          <View style={style.chip}>
+            {onlineUsersCount > 0 && (
+              <Text style={style.chipText}>
+                {numFormatter(onlineUsersCount)}
+              </Text>
+            )}
+          </View>
+        </View>
+      )}
+    </>
+  );
+};
+
+interface ParticipantsIconButtonInterface {
+  liveStreamingRequestAlertIconPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isPanelActive: boolean,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
+const ParticipantsIconButton = (props: ParticipantsIconButtonInterface) => {
+  const {
+    liveStreamingRequestAlertIconPosition = {
+      top: isWeb ? -10 : 2,
+      left: undefined,
+      right: undefined,
+      bottom: undefined,
+    },
+  } = props;
+  const {sidePanel, setSidePanel} = useSidePanel();
   const {isPendingRequestToReview, setLastCheckedRequestTimestamp} =
     useContext(LiveStreamContext);
+  //commented for v1 release
+  //const participantsLabel = useString('participantsLabel')();
+  const participantsLabel = 'Participants';
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  const isPanelActive = sidePanel === SidePanelType.Participants;
+  const onPress = () => {
+    isPanelActive
+      ? setSidePanel(SidePanelType.None)
+      : setSidePanel(SidePanelType.Participants);
+    $config.EVENT_MODE && $config.RAISE_HAND;
+    setLastCheckedRequestTimestamp(new Date().getTime());
+  };
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: onPress,
+    name: isPanelActive ? 'participantFilledIcon' : 'participantIcon',
+  };
 
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = participantsLabel;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.style = style.btnHolder;
+  }
+  return props?.render ? (
+    props.render(onPress, isPanelActive, buttonTemplateName)
+  ) : (
+    <>
+      <BtnTemplate {...btnTemplateProps} />
+      {$config.EVENT_MODE && $config.RAISE_HAND && isPendingRequestToReview && (
+        <View
+          style={{
+            position: 'absolute',
+            top: liveStreamingRequestAlertIconPosition.top,
+            bottom: liveStreamingRequestAlertIconPosition.bottom,
+            right: liveStreamingRequestAlertIconPosition.right,
+            left: liveStreamingRequestAlertIconPosition.left,
+          }}>
+          <View style={[style.badge, {paddingHorizontal: 3}]}>
+            <ImageIcon
+              icon={icons['exclamationIcon']}
+              color={$config.SECONDARY_FONT_COLOR}
+            />
+          </View>
+        </View>
+      )}
+    </>
+  );
+};
+
+interface ChatIconButtonInterface {
+  badgeContainerPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+  badgeTextStyle?: TextStyle;
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    isPanelActive: boolean,
+    totalUnreadCount: number,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
+
+const ChatIconButton = (props: ChatIconButtonInterface) => {
   const {
-    recordingActive,
-    sidePanel,
-    setSidePanel,
-    layout,
-    setLayout,
-    pendingMessageLength,
-    setLastCheckedPublicState,
-    isHost,
-    title,
+    badgeContainerPosition = {
+      top: isWeb ? -10 : 2,
+      left: undefined,
+      right: undefined,
+      bottom: undefined,
+    },
+    badgeTextStyle = {
+      color: $config.SECONDARY_FONT_COLOR,
+      fontSize: 12,
+    },
   } = props;
-  const [dim, setDim] = useState([
-    Dimensions.get('window').width,
-    Dimensions.get('window').height,
-    Dimensions.get('window').width > Dimensions.get('window').height,
-  ]);
-  let onLayout = (e: any) => {
-    setDim([e.nativeEvent.layout.width, e.nativeEvent.layout.height]);
+  const {setUnreadGroupMessageCount, totalUnreadCount} = useChatNotification();
+  const {setGroupActive, setPrivateActive, setSelectedChatUserId} =
+    useChatUIControl();
+  const {sidePanel, setSidePanel} = useSidePanel();
+  //commented for v1 release
+  //const chatLabel = useString('chatLabel')();
+  const chatLabel = 'Chat';
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  const isPanelActive = sidePanel === SidePanelType.Chat;
+  const onPress = () => {
+    if (isPanelActive) {
+      setSidePanel(SidePanelType.None);
+      setGroupActive(false);
+      setPrivateActive(false);
+      setSelectedChatUserId(0);
+    } else {
+      setUnreadGroupMessageCount(0);
+      setGroupActive(true);
+      setSidePanel(SidePanelType.Chat);
+    }
   };
-  const isDesktop = dim[0] > 1224;
-
-  const renderSeparator = () => {
-    return Platform.OS === 'web' && isDesktop ? (
-      <View style={style.navItem}>
-        <View style={style.navItemSeparator}></View>
-      </View>
-    ) : (
-      <View style={{marginHorizontal: 2}}></View>
-    );
+  let btnTemplateProps: BtnTemplateInterface = {
+    onPress: onPress,
+    name: isPanelActive ? 'chatIconFilled' : 'chatIcon',
   };
-
+  if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+    btnTemplateProps.btnText = chatLabel;
+    btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+  } else {
+    btnTemplateProps.style = style.btnHolder;
+  }
   const renderBadge = (badgeCount: any) => {
     return (
       <View
         style={{
           position: 'absolute',
-          top: Platform.OS === 'web' ? -10 : 2,
+          top: badgeContainerPosition?.top,
+          bottom: badgeContainerPosition?.bottom,
+          left: badgeContainerPosition?.left,
+          right: badgeContainerPosition?.right,
         }}>
         <View style={style.badge}>
           <Text
             style={{
-              color: $config.SECONDARY_FONT_COLOR,
-              fontSize: 12,
+              ...badgeTextStyle,
             }}>
             {numFormatter(badgeCount)}
           </Text>
@@ -79,22 +236,135 @@ const Navbar = (props: any) => {
       </View>
     );
   };
+  return props?.render ? (
+    props.render(onPress, isPanelActive, totalUnreadCount, buttonTemplateName)
+  ) : (
+    <>
+      <BtnTemplate {...btnTemplateProps} />
+      {sidePanel !== SidePanelType.Chat &&
+        totalUnreadCount !== 0 &&
+        renderBadge(totalUnreadCount)}
+    </>
+  );
+};
+
+interface LayoutIconButtonInterface {
+  modalPosition?: {
+    top?: number;
+    right?: number;
+    left?: number;
+    bottom?: number;
+  };
+  buttonTemplateName?: ButtonTemplateName;
+  render?: (
+    onPress: () => void,
+    buttonTemplateName?: ButtonTemplateName,
+  ) => JSX.Element;
+}
+
+const LayoutIconButton = (props: LayoutIconButtonInterface) => {
+  const {modalPosition} = props;
+  //commented for v1 release
+  //const layoutLabel = useString('layoutLabel')('');
+  const layoutLabel = 'Layouts';
+  const defaultTemplateValue = useButtonTemplate().buttonTemplateName;
+  const {buttonTemplateName = defaultTemplateValue} = props;
+  const [showDropdown, setShowDropdown] = useState(false);
+  const layouts = useCustomLayout();
+  const changeLayout = useChangeDefaultLayout();
+  const {activeLayoutName} = useLayout();
+  const layout = layouts.findIndex((item) => item.name === activeLayoutName);
+  const renderLayoutIcon = (showDropdown?: boolean) => {
+    let onPress = () => {};
+    let renderContent = [];
+    if (!showDropdown) {
+      onPress = () => {
+        changeLayout();
+      };
+    } else {
+      onPress = () => {
+        setShowDropdown(true);
+      };
+    }
+    let btnTemplateProps = {
+      onPress: onPress,
+      style: {},
+      btnText: '',
+    };
+    if (buttonTemplateName === ButtonTemplateName.bottomBar) {
+      btnTemplateProps.style = Styles.localButtonWithoutBG as Object;
+      btnTemplateProps.btnText = layoutLabel;
+    } else {
+      btnTemplateProps.style = style.btnHolder;
+      delete btnTemplateProps['btnText'];
+    }
+    renderContent.push(
+      props?.render ? (
+        props.render(onPress, buttonTemplateName)
+      ) : layouts[layout]?.iconName ? (
+        <BtnTemplate
+          key={'defaultLayoutIconWithName'}
+          name={layouts[layout]?.iconName}
+          {...btnTemplateProps}
+        />
+      ) : (
+        <BtnTemplate
+          key={'defaultLayoutIconWithIcon'}
+          icon={layouts[layout]?.icon}
+          {...btnTemplateProps}
+        />
+      ),
+    );
+    return renderContent;
+  };
+  return (
+    <>
+      {/**
+       * Based on the flag. it will render the dropdown
+       */}
+      <LayoutIconDropdown
+        showDropdown={showDropdown}
+        setShowDropdown={setShowDropdown}
+        modalPosition={modalPosition}
+      />
+      {/**
+       * If layout contains more than 2 data. it will render the dropdown.
+       */}
+      {layouts && Array.isArray(layouts) && layouts.length > 2
+        ? renderLayoutIcon(true)
+        : renderLayoutIcon(false)}
+    </>
+  );
+};
+
+const SettingsIconButton = (props: SettingsIconButtonProps) => {
+  return <Settings {...props} />;
+};
+const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
+  return <SettingsWithViewWrapper {...props} />;
+};
+
+const Navbar = () => {
+  //commented for v1 release
+  //const recordingLabel = useString('recordingLabel')();
+  const recordingLabel = 'Recording';
+  const {meetingTitle} = useMeetingInfo();
+  const {isRecordingActive} = useRecording();
+  const {getDimensionData} = useContext(DimensionContext);
+  const {isDesktop} = getDimensionData();
 
   return (
     <View
-      onLayout={onLayout}
       style={[
-        Platform.OS === 'web' ? style.navHolder : style.navHolderNative,
+        isWeb ? style.navHolder : style.navHolderNative,
         {backgroundColor: $config.SECONDARY_FONT_COLOR + 80},
-        Platform.OS === 'web'
+        isWeb
           ? {
-              justifyContent: mobileAndTabletCheck()
-                ? 'space-between'
-                : 'flex-end',
+              justifyContent: isMobileOrTablet() ? 'space-between' : 'flex-end',
             }
           : {},
       ]}>
-      {recordingActive && !mobileAndTabletCheck() ? (
+      {isRecordingActive && !isMobileOrTablet() ? (
         <View
           style={[
             style.recordingView,
@@ -111,14 +381,14 @@ const Navbar = (props: any) => {
           />
           <Text
             style={{
-              fontSize: Platform.OS === 'web' ? 16 : 12,
+              fontSize: isWeb ? 16 : 12,
               color: '#FD0845',
               fontWeight: '400',
               alignSelf: 'center',
               textAlign: 'center',
               flex: 1,
             }}>
-            Recording
+            {recordingLabel}
           </Text>
         </View>
       ) : (
@@ -127,11 +397,12 @@ const Navbar = (props: any) => {
       <View
         style={[
           style.roomNameContainer,
-          Platform.OS === 'web' && !mobileAndTabletCheck()
+          // @ts-ignore
+          isWeb && !isMobileOrTablet()
             ? {transform: [{translateX: '50%'}]}
             : {},
         ]}>
-        {Platform.OS === 'web' ? (
+        {isWeb ? (
           <View
             style={{
               flexDirection: 'row',
@@ -140,11 +411,11 @@ const Navbar = (props: any) => {
             }}>
             <View>
               <Text style={style.roomNameText}>
-                {mobileAndTabletCheck()
-                  ? title.length > 13
-                    ? title.slice(0, 13) + '..'
-                    : title
-                  : title}
+                {isMobileOrTablet()
+                  ? meetingTitle.length > 13
+                    ? meetingTitle.slice(0, 13) + '..'
+                    : meetingTitle
+                  : meetingTitle}
               </Text>
             </View>
             <View />
@@ -162,7 +433,7 @@ const Navbar = (props: any) => {
           </View>
         ) : (
           <View>
-            <Text style={style.roomNameText}>{title}</Text>
+            <Text style={style.roomNameText}>{meetingTitle}</Text>
           </View>
         )}
       </View>
@@ -172,115 +443,66 @@ const Navbar = (props: any) => {
             style.navContainer,
             {
               minWidth:
-                Platform.OS === 'web' && isDesktop
-                  ? 300
-                  : mobileAndTabletCheck()
-                  ? 160
-                  : 200,
+                isWeb && isDesktop ? 300 : isMobileOrTablet() ? 160 : 200,
             },
           ]}>
-          {onlineUsersCount !== 0 && (
-            <View style={[style.navItem, {justifyContent: 'center'}]}>
-              <View style={style.chip}>
-                {onlineUsersCount > 0 && (
-                  <Text style={style.chipText}>
-                    {numFormatter(onlineUsersCount)}
-                  </Text>
-                )}
-              </View>
-            </View>
-          )}
+          <ParticipantsCountView />
           <View style={[style.navItem, style.navSmItem]}>
-            <BtnTemplate
-              onPress={() => {
-                sidePanel === SidePanelType.Participants
-                  ? setSidePanel(SidePanelType.None)
-                  : setSidePanel(SidePanelType.Participants);
-                $config.EVENT_MODE && $config.RAISE_HAND;
-                setLastCheckedRequestTimestamp(new Date().getTime());
-              }}
-              style={style.btnHolder}
-              name={
-                sidePanel === SidePanelType.Participants
-                  ? 'participantFilledIcon'
-                  : 'participantIcon'
-              }
-            />
-            {$config.EVENT_MODE &&
-              $config.RAISE_HAND &&
-              isPendingRequestToReview && (
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: Platform.OS === 'web' ? -10 : 2,
-                  }}>
-                  <View style={[style.badge, {paddingHorizontal: 3}]}>
-                    <ImageIcon
-                      icon={icons['exclamationIcon']}
-                      color={$config.SECONDARY_FONT_COLOR}
-                    />
-                  </View>
-                </View>
-              )}
+            <ParticipantsIconButton />
           </View>
-          {$config.CHAT && (
+          {$config.CHAT ? (
             <>
-              {renderSeparator()}
+              <RenderSeparator />
               <View style={[style.navItem, style.navSmItem]}>
-                <BtnTemplate
-                  style={style.btnHolder}
-                  onPress={() => {
-                    setLastCheckedPublicState(messageStore.length);
-                    sidePanel === SidePanelType.Chat
-                      ? setSidePanel(SidePanelType.None)
-                      : setSidePanel(SidePanelType.Chat);
-                  }}
-                  name={
-                    sidePanel === SidePanelType.Chat
-                      ? 'chatIconFilled'
-                      : 'chatIcon'
-                  }
-                />
-                {sidePanel !== SidePanelType.Chat &&
-                  pendingMessageLength !== 0 &&
-                  renderBadge(pendingMessageLength)}
+                <ChatIconButton />
               </View>
             </>
+          ) : (
+            <></>
           )}
-          {renderSeparator()}
-          <View style={[style.navItem, style.navSmItem]}>
-            <BtnTemplate
-              style={style.btnHolder}
-              onPress={() => {
-                setLayout((l: Layout) =>
-                  l === Layout.Pinned ? Layout.Grid : Layout.Pinned,
-                );
-              }}
-              name={layout ? 'pinnedLayoutIcon' : 'gridLayoutIcon'}
-            />
+          <RenderSeparator />
+          <View
+            style={[style.navItem, style.navSmItem]}
+            /**
+             * .measure returns undefined on Android unless collapsable=false or onLayout are specified
+             * so added collapsable property
+             * https://github.com/facebook/react-native/issues/29712
+             * */
+            collapsable={false}>
+            <LayoutIconButton />
           </View>
-          {/** Show setting icon only in non native apps
-           * show in web/electron/mobile web
-           * hide in android/ios  */}
-          {Platform.OS !== 'android' && Platform.OS !== 'ios' && (
-            <>
-              {renderSeparator()}
-              <View style={[style.navItem, style.navSmItem]}>
-                <Settings
-                  sidePanel={sidePanel}
-                  setSidePanel={setSidePanel}
-                  isHost={isHost}
-                />
-              </View>
-            </>
-          )}
+          <RenderSeparator />
+          <SettingsIconButtonWithWrapper />
         </View>
       </View>
     </View>
   );
 };
+export const NavBarComponentsArray: [
+  (props: CopyJoinInfoProps) => JSX.Element,
+  () => JSX.Element,
+  (props: ParticipantsIconButtonInterface) => JSX.Element,
+  (props: ChatIconButtonInterface) => JSX.Element,
+  (props: LayoutIconButtonInterface) => JSX.Element,
+  (props: SettingsIconButtonProps) => JSX.Element,
+] = [
+  CopyJoinInfo,
+  ParticipantsCountView,
+  ParticipantsIconButton,
+  ChatIconButton,
+  LayoutIconButton,
+  SettingsIconButton,
+];
 const style = StyleSheet.create({
-  navHolder: navHolder,
+  backDrop: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.3)',
+  },
+  navHolder: navHolder as ViewStyle,
   navHolderNative: {
     position: 'relative',
     width: '100%',
@@ -310,7 +532,12 @@ const style = StyleSheet.create({
     resizeMode: 'contain',
   },
   btnHolder: {
-    marginHorizontal: mobileAndTabletCheck() ? 2 : 0,
+    marginHorizontal: isMobileOrTablet() ? 2 : 0,
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+  },
+  btnHolderCustom: {
     width: '100%',
     height: '100%',
     resizeMode: 'contain',
@@ -339,7 +566,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: $config.PRIMARY_COLOR,
     color: $config.SECONDARY_FONT_COLOR,
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     borderRadius: 10,
     position: 'absolute',
     paddingHorizontal: 5,
@@ -357,7 +584,7 @@ const style = StyleSheet.create({
     justifyContent: 'center',
   },
   chipText: {
-    fontFamily: Platform.OS === 'ios' ? 'Helvetica' : 'sans-serif',
+    fontFamily: isIOS ? 'Helvetica' : 'sans-serif',
     fontSize: 12,
     color: $config.SECONDARY_FONT_COLOR,
   },
@@ -371,12 +598,11 @@ const style = StyleSheet.create({
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-around',
-    backgroundColor:
-      Platform.OS === 'web'
-        ? $config.SECONDARY_FONT_COLOR
-        : $config.SECONDARY_FONT_COLOR + '00',
+    backgroundColor: isWeb
+      ? $config.SECONDARY_FONT_COLOR
+      : $config.SECONDARY_FONT_COLOR + '00',
     paddingVertical: 4,
-    paddingHorizontal: mobileAndTabletCheck() ? 0 : 10,
+    paddingHorizontal: isMobileOrTablet() ? 0 : 10,
     minHeight: 35,
     borderRadius: 10,
   },
@@ -397,6 +623,31 @@ const style = StyleSheet.create({
     marginHorizontal: 10,
     alignSelf: 'center',
     opacity: 0.8,
+  },
+  navItemSeparatorHorizontal: {
+    backgroundColor: $config.PRIMARY_FONT_COLOR + '80',
+    width: '100%',
+    height: 1,
+    marginVertical: 10,
+    alignSelf: 'center',
+    opacity: 0.8,
+  },
+  dropdownIconContainer: {
+    flex: 1,
+    paddingHorizontal: 5,
+  },
+  separaterContainer: {
+    flex: 0.5,
+    paddingHorizontal: 5,
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    marginTop: 5,
+    width: 40,
+    height: 90,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    paddingVertical: 10,
   },
 });
 

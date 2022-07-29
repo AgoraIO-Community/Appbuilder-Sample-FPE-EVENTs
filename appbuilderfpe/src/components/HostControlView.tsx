@@ -9,30 +9,69 @@
  information visit https://appbuilder.agora.io. 
 *********************************************
 */
-import React, {useContext} from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import chatContext, {controlMessageEnum} from './ChatContext';
-import ColorContext from './ColorContext';
+import React from 'react';
+import {View, Text, StyleSheet} from 'react-native';
+import {controlMessageEnum} from './ChatContext';
 import SecondaryButton from '../atoms/SecondaryButton';
+import {useString} from '../utils/useString';
+import useSendControlMessage, {
+  CONTROL_MESSAGE_TYPE,
+} from '../utils/useSendControlMessage';
+
+export interface MuteAllAudioButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+
+export const MuteAllAudioButton = (props: MuteAllAudioButtonProps) => {
+  const sendCtrlMsg = useSendControlMessage();
+  //commented for v1 release
+  //const muteAllAudioButton = useString('muteAllAudioButton')();
+  const muteAllAudioButton = 'Mute all audios';
+  const onPress = () =>
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+      controlMessageEnum.muteAudio,
+    );
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <SecondaryButton onPress={onPress} text={muteAllAudioButton} />
+  );
+};
+
+export interface MuteAllVideoButtonProps {
+  render?: (onPress: () => void) => JSX.Element;
+}
+export const MuteAllVideoButton = (props: MuteAllVideoButtonProps) => {
+  const sendCtrlMsg = useSendControlMessage();
+  //commented for v1 release
+  //const muteAllVideoButton = useString('muteAllVideoButton')();
+  const muteAllVideoButton = 'Mute all videos';
+  const onPress = () =>
+    sendCtrlMsg(
+      CONTROL_MESSAGE_TYPE.controlMessageToEveryOne,
+      controlMessageEnum.muteVideo,
+    );
+  return props?.render ? (
+    props.render(onPress)
+  ) : (
+    <SecondaryButton onPress={onPress} text={muteAllVideoButton} />
+  );
+};
 
 const HostControlView = () => {
-  const {sendControlMessage} = useContext(chatContext);
-  const {primaryColor} = useContext(ColorContext);
+  //commented for v1 release
+  //const hostControlsLabel = useString('hostControlsLabel')();
+  const hostControlsLabel = 'Host Controls';
   return (
     <>
-      <Text style={style.heading}>Host Controls</Text>
+      <Text style={style.heading}>{hostControlsLabel}</Text>
       <View>
         <View style={style.btnContainer}>
-          <SecondaryButton
-            onPress={() => sendControlMessage(controlMessageEnum.muteAudio)}
-            text={'Mute all audios'}
-          />
+          <MuteAllAudioButton />
         </View>
         <View style={style.btnContainer}>
-          <SecondaryButton
-            onPress={() => sendControlMessage(controlMessageEnum.muteVideo)}
-            text={'Mute all videos'}
-          />
+          <MuteAllVideoButton />
         </View>
       </View>
     </>

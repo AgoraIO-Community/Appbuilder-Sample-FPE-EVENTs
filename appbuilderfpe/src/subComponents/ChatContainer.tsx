@@ -14,16 +14,24 @@ import {
   View,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   Platform,
   Text,
   useWindowDimensions,
+  TouchableOpacity,
 } from 'react-native';
 import {RFValue} from 'react-native-responsive-fontsize';
 import ChatBubble from './ChatBubble';
-import ChatContext from '../components/ChatContext';
+import ChatContext, {ChatBubbleProps} from '../components/ChatContext';
+import {BtnTemplate} from '../../agora-rn-uikit';
 import {ImageIcon} from '../../agora-rn-uikit';
 import TextWithTooltip from './TextWithTooltip';
+import {useFpe} from 'fpe-api';
+import {isValidReactComponent, isWeb} from '../utils/common';
+import {useString} from '../utils/useString';
+import {useChatUIControl} from '../components/chat-ui/useChatUIControl';
+import useUserList from '../utils/useUserList';
+import useGroupMessages from '../utils/useGroupMessages';
+import usePrivateMessages from '../utils/usePrivateMessages';
 
 /**
  * Chat container is the component which renders all the chat messages
@@ -31,14 +39,53 @@ import TextWithTooltip from './TextWithTooltip';
  * and maps it to a ChatBubble
  */
 const ChatContainer = (props: any) => {
-  const {userList} = useContext(ChatContext);
+  const {renderList} = useUserList();
+  const messageStore = useGroupMessages();
+  const getPrivateMessage = usePrivateMessages();
+  const privateMessageStore = getPrivateMessage();
   const {height, width} = useWindowDimensions();
-  const {selectedUserID, privateActive, setPrivateActive, selectedUsername} =
-    props;
-  const {messageStore, localUid, privateMessageStore} = useContext(ChatContext);
-
+  const {selectPrivate} = props;
+  const {
+    privateActive,
+    selectedChatUserId: selectedUserID,
+    setPrivateActive,
+  } = useChatUIControl();
+  const {localUid} = useContext(ChatContext);
+  //commented for v1 release
+  //const remoteUserDefaultLabel = useString('remoteUserDefaultLabel')();
+  const remoteUserDefaultLabel = 'User';
   const scrollViewRef = useRef<ScrollView>(null);
 
+  const {ChatBubbleComponent} = useFpe((data) => {
+    let components: {
+      ChatBubbleComponent: React.ComponentType<ChatBubbleProps>;
+    } = {
+      ChatBubbleComponent: ChatBubble,
+    };
+    if (
+      data?.components?.videoCall &&
+      typeof data?.components?.videoCall === 'object'
+    ) {
+      // commented for v1 release
+      // if (
+      //   data?.components?.videoCall?.chat &&
+      //   typeof data?.components?.videoCall?.chat === 'object'
+      // ) {
+      //   if (
+      //     data?.components?.videoCall?.chat?.chatBubble &&
+      //     typeof data?.components?.videoCall?.chat?.chatBubble !== 'object' &&
+      //     isValidReactComponent(data?.components?.videoCall?.chat?.chatBubble)
+      //   ) {
+      //     components.ChatBubbleComponent =
+      //       data?.components?.videoCall?.chat?.chatBubble;
+      //   }
+      // }
+    }
+    return components;
+  });
+  //commented for v1 release
+  //const userOfflineLabel = useString('userOfflineLabel')();
+  const userOfflineLabel = 'User is offline';
   return (
     <View style={style.containerView}>
       {privateActive && (
@@ -57,7 +104,11 @@ const ChatContainer = (props: any) => {
                   fontSize: RFValue(16, height > width ? height : width),
                 },
               ]}
-              value={selectedUsername}
+              value={
+                renderList[selectedUserID]
+                  ? renderList[selectedUserID]?.name + ' '
+                  : remoteUserDefaultLabel + ' '
+              }
             />
           </View>
         </TouchableOpacity>
@@ -68,35 +119,33 @@ const ChatContainer = (props: any) => {
           scrollViewRef.current?.scrollToEnd({animated: true});
         }}>
         {!privateActive ? (
-          messageStore.map((message: any) => {
-            return (
-              <ChatBubble
+          messageStore.map((message: any) => (
+            <>
+              <ChatBubbleComponent
                 isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
+                message={message.msg}
+                timestamp={message.ts}
                 uid={message.uid}
                 key={message.ts}
               />
-            );
-          })
+            </>
+          ))
         ) : privateMessageStore[selectedUserID] ? (
-          privateMessageStore[selectedUserID].map((message: any) => {
-            return (
-              <ChatBubble
-                isLocal={localUid === message.uid}
-                msg={message.msg}
-                ts={message.ts}
-                uid={message.uid}
-                key={message.ts}
-              />
-            );
-          })
+          privateMessageStore[selectedUserID].map((message: any) => (
+            <ChatBubbleComponent
+              isLocal={localUid === message.uid}
+              message={message.msg}
+              timestamp={message.ts}
+              uid={message.uid}
+              key={message.ts}
+            />
+          ))
         ) : (
           <></>
         )}
-        {userList[selectedUserID]?.offline && (
+        {renderList[selectedUserID]?.offline && (
           <View style={style.infoTextView}>
-            <Text style={style.infoText}>User is offline</Text>
+            <Text style={style.infoText}>{userOfflineLabel}</Text>
           </View>
         )}
       </ScrollView>
@@ -126,7 +175,7 @@ const style = StyleSheet.create({
     alignSelf: 'flex-end',
   },
   name: {
-    fontWeight: Platform.OS === 'web' ? '500' : '700',
+    fontWeight: isWeb ? '500' : '700',
     color: $config.PRIMARY_FONT_COLOR,
     textAlign: 'left',
     marginRight: 10,
