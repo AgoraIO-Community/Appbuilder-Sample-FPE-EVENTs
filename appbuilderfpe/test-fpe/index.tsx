@@ -4,12 +4,13 @@ import TopPinnedVideo from './custom-layout/TopPinnedLayout';
 import {CustomWrapperProvider} from './custom-wrapper/CustomWrapper';
 import {CustomMaxVideoView} from './custom-components/CustomMaxVideoView';
 import {CustomParticipantPanel} from './custom-components/CustomParticipantPanel';
-
+import CustomTitle from './components/CustomTitle';
 const userCustomization = installFPE({
   appRoot: CustomWrapperProvider,
   components: {
     videoCall: {
       participantsPanel: CustomParticipantPanel,
+      //bottomBar: CustomTitle,
       bottomBar: CustomBottomBar,
       customContent: {
         rtc: CustomMaxVideoView,
@@ -32,8 +33,8 @@ const userCustomization = installFPE({
       locale: 'en-us',
       label: 'English',
       data: {
-        joinRoomButton: 'Join Room',
-        meetingNameInputPlaceholder: 'Room name',
+        joinRoomButton: 'Join Room edited',
+        meetingNameInputPlaceholder: 'Room name edited',
         pstnUserLabel: 'PSTN USER',
       },
     },
