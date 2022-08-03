@@ -16,10 +16,11 @@ import RTMEngine from '../rtm/RTMEngine';
 import {ToOptions, EventPayload} from './types';
 import {EventUtils, eventMessageType} from '../rtm-events';
 import {TEventCallback, EventSourceEnum} from './types';
+import {adjustUID} from '../rtm/utils';
 
 class CustomEvents {
-  engine!: RtmEngine;
-  source: EventSourceEnum = EventSourceEnum.core;
+  private engine!: RtmEngine;
+  private source: EventSourceEnum = EventSourceEnum.core;
 
   constructor(source?: EventSourceEnum) {
     this.engine = RTMEngine.getInstance().engine;
@@ -63,6 +64,7 @@ class CustomEvents {
     }
     return true;
   };
+
   private _validateListener = (listener: TEventCallback): boolean => {
     if (typeof listener !== 'function') {
       throw Error(
@@ -73,13 +75,18 @@ class CustomEvents {
   };
 
   /**
-   * Sends the data across to client using transport layer RTM API's
+   * Sets the local attribute of user if  persist level is 2 or 3.
+   * If param 'to' is not provided, message is sent in the channel.
+   * If param 'to' is provided message is sent to that individual.
+   * If param 'to' is an array of uids is provided then message is sent to all the individual uids in loop.
    *
    * @param {any} rtmPayload payload to be sent across
-   * @param {ToOptions} to If defined then sent to individual peer in the channle. If not defined then sent to everyone
+   * @param {ToOptions} to uid or uids[] of user
    * @api private
    */
-  private _send = async (rtmPayload: any, to?: ToOptions) => {
+  private _send = async (rtmPayload: any, toUid?: ToOptions) => {
+    const to = typeof toUid == 'string' ? parseInt(toUid) : toUid;
+
     const text = JSON.stringify({
       type: eventMessageType.CUSTOM_EVENT,
       msg: rtmPayload,
@@ -87,7 +94,7 @@ class CustomEvents {
     // Case 1: send to channel
     if (
       typeof to === 'undefined' ||
-      (typeof to === 'number' && !to) ||
+      (typeof to === 'number' && to <= 0) ||
       (Array.isArray(to) && to?.length === 0)
     ) {
       console.log('CUSTOM_EVENT_API: case 1 executed');
@@ -100,12 +107,12 @@ class CustomEvents {
       }
     }
     // Case 2: send to indivdual
-    if (typeof to === 'number' && !to) {
+    if (typeof to === 'number' && to !== 0) {
       console.log('CUSTOM_EVENT_API: case 2 executed', to);
-
+      const adjustedUID = adjustUID(to);
       try {
         await this.engine.sendMessageToPeer({
-          peerId: `${to}`,
+          peerId: `${adjustedUID}`,
           offline: false,
           text,
         });
@@ -120,9 +127,9 @@ class CustomEvents {
 
       try {
         for (const uid of to) {
-          // TODO adjust uids
+          const adjustedUID = adjustUID(uid);
           await this.engine.sendMessageToPeer({
-            peerId: `${uid}`,
+            peerId: `${adjustedUID}`,
             offline: false,
             text,
           });
@@ -134,15 +141,35 @@ class CustomEvents {
     }
   };
 
+  /**
+   * Listens for a specified event.
+   * Adds a listener function to the specified event.
+   * When the specified event happens, the Events API triggers the callback that you pass.
+   * The listener will not be added if it is a duplicate.
+   *
+   * @param {String} evt Name of the event to attach the listener to.
+   * @param {Function} listener Method to be called when the event is emitted.
+   * @api public
+   */
   on = (evt: string, listener: TEventCallback) => {
     if (!this._validateEvt(evt) || !this._validateListener(listener)) return;
     EventUtils.addListener(evt, listener, this.source);
   };
 
-  off = (evt?: string, listener?: TEventCallback) => {
-    if (listener) {
-      if (this._validateListener(listener) && this._validateEvt(evt)) {
-        EventUtils.removeListener(evt, listener, this.source);
+  /**
+   * Removes a listener function from the specified event if evt and listener function both are provided.
+   * Removes all listeners from a specified event if listener function is not provided.
+   * If you do not specify an event then all listeners will be removed.
+   * That means every event will be emptied.
+   *
+   * @param {String} evt Name of the event to remove the listener from.
+   * @param {Function} listenerToRemove Method to remove from the event.
+   * @api public
+   */
+  off = (evt?: string, listenerToRemove?: TEventCallback) => {
+    if (listenerToRemove) {
+      if (this._validateListener(listenerToRemove) && this._validateEvt(evt)) {
+        EventUtils.removeListener(evt, listenerToRemove, this.source);
       }
     } else if (evt) {
       if (this._validateEvt(evt)) {
@@ -153,6 +180,20 @@ class CustomEvents {
     }
   };
 
+  /**
+   * This method sends p2p or channel message depending upon the 'to' value.
+   *  - If 'to' is provided this method sends p2p message.
+   *  - If 'to' is empty this method sends channel message.
+   *
+   *
+   * @param {String} evt Name of the event to remove the listener from.
+   * @param {EventPayload} payload contains action, level, value metrics.
+   * - action: {string}
+   * - level: 1 | 2 | 3
+   * - value: {string}. NOTICE: value bytelength has MAX_SIZE 32kb limit.
+   * @param {ToOptions} to uid or uid array. The default mode is to send a message in channel.
+   * @api public
+   * */
   send = async (evt: string, payload: EventPayload, to?: ToOptions) => {
     if (!this._validateEvt(evt)) return;
     const {action = '', value = '', level = 1} = payload;
@@ -177,28 +218,6 @@ class CustomEvents {
       console.log('CUSTOM_EVENT_API: sendPersist sending failed. ', error);
     }
   };
-
-  printEvents = async () => {
-    console.log(
-      'CUSTOM_EVENT_API: EVENTS source',
-      EventUtils.getEvents(EventSourceEnum.core),
-    );
-    console.log(
-      'CUSTOM_EVENT_API: EVENTS fpe',
-      EventUtils.getEvents(EventSourceEnum.fpe),
-    );
-    const myId = RTMEngine.getInstance().localUid;
-    try {
-      const myattr = await this.engine.getUserAttributesByUid(myId);
-      console.log('CUSTOM_EVENT_API: user attr', myattr);
-    } catch (error) {
-      console.log('CUSTOM_EVENT_API: EVENTS fpe error: ', error);
-    }
-  };
-  // once = (name: string, listener: any) => {
-  //   console.log('CUSTOM_EVENT_API: Event lifecycle: ONCE');
-  //   const response = EventUtils.addOnceListener(name, listener);
-  // };
 }
 
 export default CustomEvents;
