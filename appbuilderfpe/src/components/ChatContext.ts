@@ -18,6 +18,12 @@ export interface ChatBubbleProps {
   message: string;
   timestamp: string;
   uid: UidType;
+  render?: (
+    isLocal: boolean,
+    message: string,
+    timestamp: string,
+    uid: UidType,
+  ) => JSX.Element;
 }
 
 export interface messageStoreInterface {
@@ -58,8 +64,6 @@ export interface chatContext {
   engine: RtmEngine;
   localUid: UidType;
   onlineUsersCount: number;
-  displayName: string;
-  setDisplayName: React.Dispatch<SetStateAction<string>>;
 }
 
 export enum controlMessageEnum {
