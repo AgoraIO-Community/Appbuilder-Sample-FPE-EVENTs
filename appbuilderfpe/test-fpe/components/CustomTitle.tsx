@@ -1,36 +1,36 @@
-import {fpeEvents} from 'fpe-api';
+import {CustomEvents} from 'fpe-api';
 import React from 'react';
 import {View, Button} from 'react-native';
 
 export default function CustomTitle() {
   React.useEffect(() => {
-    fpeEvents.on('test1', (data) => {
+    CustomEvents.on('test1', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
-    fpeEvents.on('test2', (data) => {
+    CustomEvents.on('test2', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
-    fpeEvents.on('test3', (data) => {
+    CustomEvents.on('test3', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
-    fpeEvents.on('test4', (data) => {
+    CustomEvents.on('test4', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
   }, []);
 
   const sendLevel1Message = () => {
-    fpeEvents.send('test1', {
+    CustomEvents.send('test1', {
       value: 'level 1 value',
     });
   };
   const sendLevel2Message = () => {
-    fpeEvents.send('test2', {
+    CustomEvents.send('test2', {
       value: 'level 2 value:',
       level: 2,
     });
   };
   const sendLevel3Message = () => {
-    fpeEvents.send('test3', {
+    CustomEvents.send('test3', {
       value: 'level 3 value:',
       level: 3,
     });
@@ -48,7 +48,7 @@ export default function CustomTitle() {
       <Button onPress={sendLevel1Message} title="Send Level 1 message" />
       <Button onPress={sendLevel2Message} title="Send Level 2 message" />
       <Button onPress={sendLevel3Message} title="Send Level 3 message" />
-      <Button onPress={fpeEvents.printEvents} title="Print events" />
+      {/* <Button onPress={fpeEvents.printEvents} title="Print events" /> */}
     </View>
   );
 }

@@ -5,10 +5,14 @@ import {CustomWrapperProvider} from './custom-wrapper/CustomWrapper';
 import {CustomMaxVideoView} from './custom-components/CustomMaxVideoView';
 import {CustomParticipantPanel} from './custom-components/CustomParticipantPanel';
 import CustomTitle from './components/CustomTitle';
+import CustomChatBubble from './custom-components/CustomChatBubble';
 const userCustomization = installFPE({
   appRoot: CustomWrapperProvider,
   components: {
     videoCall: {
+      chat: {
+        chatBubble: CustomChatBubble,
+      },
       participantsPanel: CustomParticipantPanel,
       //bottomBar: CustomTitle,
       bottomBar: CustomBottomBar,
