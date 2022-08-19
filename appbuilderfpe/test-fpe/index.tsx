@@ -1,5 +1,4 @@
 import {installFPE} from 'fpe-api/install';
-import CustomBottomBar from './custom-components/CustomBottomBar';
 import TopPinnedVideo from './custom-layout/TopPinnedLayout';
 import {CustomWrapperProvider} from './custom-wrapper/CustomWrapper';
 import {CustomMaxVideoView} from './custom-components/CustomMaxVideoView';
@@ -15,7 +14,6 @@ const userCustomization = installFPE({
       },
       participantsPanel: CustomParticipantPanel,
       //bottomBar: CustomTitle,
-      bottomBar: CustomBottomBar,
       customContent: {
         rtc: CustomMaxVideoView,
       },
