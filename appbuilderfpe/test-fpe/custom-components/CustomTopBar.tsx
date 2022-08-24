@@ -17,6 +17,10 @@ import DimensionContext from '../../src/components/dimension/DimensionContext';
 import isMobileOrTablet from '../../src/utils/isMobileOrTablet';
 import {useMeetingInfo, useRecording, NavBarComponentsArray} from 'fpe-api';
 import {isWeb, isIOS} from '../../src/utils/common';
+import {
+  SettingsWithViewWrapper,
+  SettingsIconButtonProps,
+} from '../../src/components/Settings';
 const RenderSeparator = () => {
   const {getDimensionData} = useContext(DimensionContext);
   const {isDesktop} = getDimensionData();
@@ -28,7 +32,9 @@ const RenderSeparator = () => {
     <View style={{marginHorizontal: 2}}></View>
   );
 };
-
+const SettingsIconButtonWithWrapper = (props: SettingsIconButtonProps) => {
+  return <SettingsWithViewWrapper {...props} />;
+};
 const CustomNavBar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
@@ -126,7 +132,10 @@ const CustomNavBar = () => {
           </View>
         ) : (
           <View>
-            <Text style={style.roomNameText}>{meetingTitle}</Text>
+            <Text style={style.roomNameText}>
+              {meetingTitle}
+              {' - Sample App'}
+            </Text>
           </View>
         )}
       </View>
@@ -165,9 +174,7 @@ const CustomNavBar = () => {
             <LayoutIconButton />
           </View>
           <RenderSeparator />
-          <View style={[style.navItem, style.navSmItem]}>
-            <SettingsIconButton />
-          </View>
+          <SettingsIconButtonWithWrapper />
         </View>
       </View>
     </View>
