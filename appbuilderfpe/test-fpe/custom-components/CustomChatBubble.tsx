@@ -23,8 +23,8 @@ import {
   useDeleteMessage,
   MESSAGE_TYPE,
   useChatUIControl,
+  useLocalUid,
 } from 'fpe-api';
-import {useLocalUid} from '../../agora-rn-uikit';
 const CustomCmp = (props: ChatBubbleProps) => {
   const [editActive, setEditActive] = useState(false);
   const editmsg = useEditMessage();

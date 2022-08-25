@@ -1,4 +1,4 @@
-import React, {useState, useContext} from 'react';
+import React, {useState} from 'react';
 import {
   ScrollView,
   View,
@@ -7,8 +7,7 @@ import {
   Text,
   Pressable,
 } from 'react-native';
-import {RtcContext} from '../../agora-rn-uikit';
-import {layoutComponent, RenderComponent} from 'fpe-api';
+import {layoutComponent, RenderComponent, useRtcContext} from 'fpe-api';
 const topPinned = true;
 
 const TopPinnedVideo: layoutComponent = ({renderData}) => {
@@ -28,7 +27,7 @@ const TopPinnedVideo: layoutComponent = ({renderData}) => {
   };
   // **********************************
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const {dispatch} = useContext(RtcContext);
+  const {dispatch} = useRtcContext();
   const [maxUid, ...minUids] = renderData;
   return (
     <View

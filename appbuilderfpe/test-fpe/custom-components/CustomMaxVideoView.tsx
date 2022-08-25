@@ -1,8 +1,11 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {MaxVideoView, RenderInterface} from '../../agora-rn-uikit';
-import {NetworkQualityPill} from 'fpe-api';
-import {NameWithMicStatus} from 'fpe-api';
+import {
+  NetworkQualityPill,
+  RenderInterface,
+  NameWithMicStatus,
+  UiKitMaxVideoView,
+} from 'fpe-api';
 
 interface MaxVideoRendererInterface {
   user: RenderInterface;
@@ -19,7 +22,7 @@ const CustomMaxVideoView: React.FC<MaxVideoRendererInterface> = ({user}) => {
           left: 5,
         }}
       />
-      <MaxVideoView
+      <UiKitMaxVideoView
         fallback={() => {
           return (
             <View
