@@ -14,7 +14,13 @@ const CustomParticipantPanel = () => {
 
   const renderChangeName = () => {
     return (
-      <>
+      <View
+        style={{
+          flex: 0.5,
+          justifyContent: 'center',
+          backgroundColor: $config.SECONDARY_FONT_COLOR,
+          paddingHorizontal: 10,
+        }}>
         <TextInput
           style={{borderWidth: 1, borderColor: 'black', minHeight: 50}}
           placeholder={'Enter new name'}
@@ -22,7 +28,7 @@ const CustomParticipantPanel = () => {
             setName(text);
           }}
         />
-        <View style={{height: 50}}>
+        <View style={{paddingVertical: 5}}>
           <Button
             title="change name"
             onPress={() => {
@@ -30,7 +36,7 @@ const CustomParticipantPanel = () => {
             }}
           />
         </View>
-      </>
+      </View>
     );
   };
   return (
@@ -67,7 +73,9 @@ const CustomParticipantPanel = () => {
             }
       }>
       {renderChangeName()}
-      <ParticipantsView />
+      <View style={{flex: 2}}>
+        <ParticipantsView />
+      </View>
     </View>
   );
 };
