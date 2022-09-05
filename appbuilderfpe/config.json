@@ -27,8 +27,8 @@
   "MICROSOFT_CLIENT_ID": "",
   "SLACK_CLIENT_ID": "",
   "APPLE_CLIENT_ID": "",
-  "EVENT_MODE": false,
-  "RAISE_HAND": false,
+  "EVENT_MODE": true,
+  "RAISE_HAND": true,
   "GEO_FENCING": true,
   "LOG_ENABLED": true
 }
