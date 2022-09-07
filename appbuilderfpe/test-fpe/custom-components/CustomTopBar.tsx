@@ -30,7 +30,13 @@ const CustomNavBar = () => {
 
   return (
     <View
-      style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
+      style={{
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginLeft: 55,
+        marginRight: 50,
+      }}>
       <View
         style={{
           flex: 1,
@@ -40,12 +46,9 @@ const CustomNavBar = () => {
           paddingHorizontal: 10,
         }}>
         <View>
-          <Text>
+          <Text style={{fontSize: 20, textAlign: 'center'}}>
             {meetingTitle} {' - Sample App'}
           </Text>
-        </View>
-        <View style={[style.navItem, style.navSmItem]}>
-          <CopyJoinInfo />
         </View>
       </View>
       <View
@@ -56,9 +59,9 @@ const CustomNavBar = () => {
           alignSelf: 'center',
           maxWidth: 300,
         }}>
-        <View style={[style.navItem, style.navSmItem]}>
+        {/* <View style={[style.navItem, style.navSmItem]}>
           <ParticipantsIconButton />
-        </View>
+        </View> */}
         {$config.CHAT ? (
           <>
             <View style={[style.navItem, style.navSmItem]}>
@@ -76,7 +79,14 @@ const CustomNavBar = () => {
            * https://github.com/facebook/react-native/issues/29712
            * */
           collapsable={false}>
-          <LayoutIconButton />
+          <LayoutIconButton
+            modalPosition={{
+              top: 45,
+              right: 15 + 50,
+              bottom: undefined,
+              left: undefined,
+            }}
+          />
         </View>
         <View style={[style.navItem, style.navSmItem]}>
           <SettingsIconButton />

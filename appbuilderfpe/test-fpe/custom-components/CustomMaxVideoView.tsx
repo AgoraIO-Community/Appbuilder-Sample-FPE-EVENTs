@@ -15,11 +15,13 @@ const CustomMaxVideoView: React.FC<MaxVideoRendererInterface> = ({user}) => {
     <View style={maxStyle.container}>
       <NetworkQualityPill
         user={user}
-        primaryColor={$config.PRIMARY_COLOR}
+        primaryColor={'black'}
         rootStyle={{
           marginLeft: 10,
           top: 8,
-          left: 5,
+          right: 5,
+          backgroundColor: $config.PRIMARY_COLOR,
+          opacity: 1,
         }}
       />
       <UiKitMaxVideoView
@@ -28,10 +30,12 @@ const CustomMaxVideoView: React.FC<MaxVideoRendererInterface> = ({user}) => {
             <View
               style={{
                 flex: 1,
-                backgroundColor: '#000',
+                backgroundColor: 'white',
                 justifyContent: 'center',
                 alignContent: 'center',
                 borderRadius: 15,
+                borderColor: $config.PRIMARY_COLOR,
+                borderWidth: 1,
               }}>
               <View
                 style={{
@@ -48,11 +52,11 @@ const CustomMaxVideoView: React.FC<MaxVideoRendererInterface> = ({user}) => {
                 <Text
                   style={{
                     color: $config.SECONDARY_FONT_COLOR,
-                    fontSize: 20,
+                    fontSize: 16,
                     alignSelf: 'center',
                     textAlign: 'center',
                   }}>
-                  {user?.name ? user.name[0]?.toUpperCase() : 'U'}
+                  {user?.name ? user.name : 'User'}
                 </Text>
               </View>
             </View>
@@ -62,22 +66,24 @@ const CustomMaxVideoView: React.FC<MaxVideoRendererInterface> = ({user}) => {
         key={user.uid}
       />
       <View style={maxStyle.nameHolder}>
-        <NameWithMicStatus user={user} />
+        <NameWithMicStatus user={{...user, name: ' '}} />
       </View>
     </View>
   );
 };
 
 const maxStyle = StyleSheet.create({
-  container: {width: '100%', height: '100%'},
+  container: {width: '100%', height: '100%', position: 'relative'},
   width80: {width: '80%'},
   width100: {width: '100%'},
   flex2: {flex: 2},
   flex4: {flex: 4, backgroundColor: '#ffffff00'},
   flex1: {flex: 1},
   nameHolder: {
-    marginTop: -25,
-    backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
+    position: 'absolute',
+    bottom: 1,
+    right: 1,
+    backgroundColor: $config.PRIMARY_COLOR,
     alignSelf: 'flex-end',
     paddingHorizontal: 8,
     height: 25,
@@ -85,7 +91,7 @@ const maxStyle = StyleSheet.create({
     borderBottomRightRadius: 15,
     flexDirection: 'row',
     zIndex: 5,
-    maxWidth: '100%',
+    maxWidth: '20%',
   },
   name: {
     color: $config.PRIMARY_FONT_COLOR,

@@ -6,7 +6,9 @@ import {CustomParticipantPanel} from './custom-components/CustomParticipantPanel
 import CustomTitle from './components/CustomTitle';
 import CustomChatBubble from './custom-components/CustomChatBubble';
 import CustomTopBar from './custom-components/CustomTopBar';
-
+import CustomBottomBar from './custom-components/CustomBottomBar';
+//@ts-ignore
+import topPinnedLayoutIcon from './icons8-layout-64.png';
 const userCustomization = installFPE({
   appRoot: CustomWrapperProvider,
   components: {
@@ -16,7 +18,7 @@ const userCustomization = installFPE({
         chatBubble: CustomChatBubble,
       },
       participantsPanel: CustomParticipantPanel,
-      //bottomBar: CustomTitle,
+      bottomBar: CustomBottomBar,
       customContent: {
         rtc: CustomMaxVideoView,
       },
@@ -27,7 +29,7 @@ const userCustomization = installFPE({
             component: TopPinnedVideo,
             label: 'Top Pinned Layout',
             name: 'TopPinnedLayout',
-            iconName: 'clipboard',
+            icon: topPinnedLayoutIcon,
           },
         ];
       },
@@ -38,8 +40,8 @@ const userCustomization = installFPE({
       locale: 'en-us',
       label: 'English',
       data: {
-        joinRoomButton: 'Join Room edited',
-        meetingNameInputPlaceholder: 'Room name edited',
+        joinRoomButton: 'Join Room',
+        meetingNameInputPlaceholder: 'Room name',
         pstnUserLabel: 'PSTN USER',
       },
     },

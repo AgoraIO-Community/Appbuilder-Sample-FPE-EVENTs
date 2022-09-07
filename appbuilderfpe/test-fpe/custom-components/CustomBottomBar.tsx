@@ -1,53 +1,96 @@
-import {ControlsComponentsArray} from 'fpe-api';
+import {ControlsComponentsArray, NavBarComponentsArray} from 'fpe-api';
 import React from 'react';
 import {View} from 'react-native';
 
 const CustomBottomBar = () => {
   const [AudioBtn, VideoBtn, _, ScreenshareButton, Recording, Endcall] =
     ControlsComponentsArray;
+  const [
+    CopyJoinInfo,
+    ParticipantsCountView,
+    ParticipantsIconButton,
+    ChatIconButton,
+    LayoutIconButton,
+    SettingsIconButton,
+  ] = NavBarComponentsArray;
   return (
     <View
       style={{
-        flex: 1.3,
+        flex: 1,
         minHeight: 80,
         maxHeight: '8%',
         flexDirection: 'row',
         justifyContent: 'space-evenly',
-        position: 'relative',
+        // position: 'relative',
         margin: 0,
         bottom: 0,
-        paddingHorizontal: '25%',
+        //paddingHorizontal: '25%',
       }}>
       <View
         style={{
-          alignSelf: 'center',
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+          marginLeft: 50,
         }}>
-        <VideoBtn />
+        <View
+          style={{
+            alignSelf: 'center',
+          }}>
+          <CopyJoinInfo />
+        </View>
+      </View>
+      <View style={{flex: 2, flexDirection: 'row', justifyContent: 'center'}}>
+        <View
+          style={{
+            alignSelf: 'center',
+            marginHorizontal: 50,
+          }}>
+          <VideoBtn />
+        </View>
+        <View
+          style={{
+            alignSelf: 'center',
+            marginHorizontal: 50,
+          }}>
+          <AudioBtn />
+        </View>
+
+        <View
+          style={{
+            alignSelf: 'center',
+            marginHorizontal: 50,
+          }}>
+          <ScreenshareButton />
+        </View>
+        <View
+          style={{
+            alignSelf: 'center',
+            marginHorizontal: 50,
+          }}>
+          <Recording />
+        </View>
+        <View
+          style={{
+            alignSelf: 'center',
+            marginHorizontal: 50,
+          }}>
+          <ParticipantsIconButton />
+        </View>
       </View>
       <View
         style={{
-          marginVertical: 10,
-          alignSelf: 'center',
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
         }}>
-        <AudioBtn />
-      </View>
-      <View
-        style={{
-          alignSelf: 'center',
-        }}>
-        <ScreenshareButton />
-      </View>
-      <View
-        style={{
-          alignSelf: 'center',
-        }}>
-        <Recording />
-      </View>
-      <View
-        style={{
-          alignSelf: 'center',
-        }}>
-        <Endcall />
+        <View
+          style={{
+            alignSelf: 'center',
+            marginRight: 50,
+          }}>
+          <Endcall />
+        </View>
       </View>
     </View>
   );
