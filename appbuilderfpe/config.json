@@ -30,5 +30,6 @@
   "EVENT_MODE": false,
   "RAISE_HAND": false,
   "GEO_FENCING": true,
-  "LOG_ENABLED": true
+  "LOG_ENABLED": true,
+  "AUDIO_ROOM": false
 }
