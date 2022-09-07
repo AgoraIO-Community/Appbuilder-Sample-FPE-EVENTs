@@ -6,6 +6,8 @@ import {CustomParticipantPanel} from './custom-components/CustomParticipantPanel
 import CustomTitle from './components/CustomTitle';
 import CustomChatBubble from './custom-components/CustomChatBubble';
 import CustomTopBar from './custom-components/CustomTopBar';
+import CustomChatInput from './custom-components/CustomChatInput';
+import CustomChatSendBtn from './custom-components/CustomChatSendBtn';
 
 const userCustomization = installFPE({
   appRoot: CustomWrapperProvider,
@@ -14,6 +16,8 @@ const userCustomization = installFPE({
       topBar: CustomTopBar,
       chat: {
         chatBubble: CustomChatBubble,
+        chatInput: CustomChatInput,
+        chatSentButton: CustomChatSendBtn,
       },
       participantsPanel: CustomParticipantPanel,
       //bottomBar: CustomTitle,

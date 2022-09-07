@@ -1,12 +1,3 @@
-// import React from 'react';
-// import {ChatBubbleProps, ChatBubble} from 'fpe-api';
-// import * as filter from 'leo-profanity';
-
-// const CustomChatBubble = (props: ChatBubbleProps) => {
-//   return <ChatBubble {...props} message={filter.clean(props.message)} />;
-// };
-
-// export default CustomChatBubble;
 import React, {useState} from 'react';
 import {
   Button,
@@ -25,6 +16,7 @@ import {
   useChatUIControl,
   useLocalUid,
 } from 'fpe-api';
+import * as leoProfanity from 'leo-profanity';
 const CustomCmp = (props: ChatBubbleProps) => {
   const [editActive, setEditActive] = useState(false);
   const editmsg = useEditMessage();
@@ -78,7 +70,11 @@ const CustomCmp = (props: ChatBubbleProps) => {
     <View>
       <ChatBubble
         {...props}
-        message={props.isDeleted ? 'This message was deleted' : props.message}
+        message={
+          props.isDeleted
+            ? 'This message was deleted'
+            : leoProfanity.clean(props.message)
+        }
       />
       {props.uid === localUid && (
         <View
