@@ -29,6 +29,7 @@
   "LOG_ENABLED": true,
   "EVENT_MODE": false,
   "RAISE_HAND": false,
+  "AUDIO_ROOM": false,
   "PRODUCT_ID": "appbuilderfpe",
   "APP_NAME": "appbuilderfpe",
   "LOGO": "https://dbudicf5k4as1.cloudfront.net/2/5TWpUqsdC0BH6lPJ.jpeg",
