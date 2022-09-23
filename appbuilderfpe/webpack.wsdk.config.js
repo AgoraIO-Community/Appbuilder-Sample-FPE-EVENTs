@@ -9,6 +9,7 @@ const libraryTargets = ['commonjs2', 'var','umd2'];
 const baseConfig = {
   // Enable optimizations in production
   mode: isDevelopment ? 'development' : 'production',
+  devtool: isDevelopment ? 'eval-cheap-module-source-map' : 'source-map',
   // Main entry point for the web application
   entry: {
     main: './index.wsdk.tsx',
@@ -20,7 +21,6 @@ const baseConfig = {
       name: 'AgoraAppBuilder',
     },
   },
-  watch: isDevelopment
 };
 
 const mappedConfigs = libraryTargets.map((target, _) => {

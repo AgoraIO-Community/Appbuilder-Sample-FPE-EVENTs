@@ -24,35 +24,33 @@ const WebpackDevServer = require('webpack-dev-server');
 const webpackConfig = require('./webpack.renderer.config');
 const webpackRsdkConfig = require('./webpack.rsdk.config');
 
-const outPathArg = process.argv.indexOf('--outpath')
+const outPathArg = process.argv.indexOf('--outpath');
 getBuildPath = () => {
   if (outPathArg == -1) {
     return process.env.TARGET === 'wsdk'
-    ? path.join(__dirname, '../Builds/web-sdk')
-    : process.env.TARGET === 'rsdk'
-    ? path.join(__dirname, '../Builds/react-sdk')
-    : process.env.TARGET === 'android'
-    ? path.join(__dirname, '../Builds/android')
-    : path.join(__dirname, '../Builds/.electron');
+      ? path.join(__dirname, '../Builds/web-sdk')
+      : process.env.TARGET === 'rsdk'
+      ? path.join(__dirname, '../Builds/react-sdk')
+      : process.env.TARGET === 'android'
+      ? path.join(__dirname, '../Builds/android')
+      : path.join(__dirname, '../Builds/.electron');
   } else {
-    return process.argv[outPathArg+1].split('/').slice(0, -1).join('/')
+    return process.argv[outPathArg + 1].split('/').slice(0, -1).join('/');
   }
-}
+};
 const BUILD_PATH = getBuildPath();
-const TS_DEFS_BUILD_PATH = process.env.TARGET === 'wsdk'
-? path.join(__dirname, '../Builds/ts-defs/web-sdk')
-: process.env.TARGET === 'rsdk'
-? path.join(__dirname, '../Builds/ts-defs/react-sdk')
-: process.env.TARGET === 'android'
-? path.join(__dirname, '../Builds/ts-defs/android')
-: path.join(__dirname, '../Builds/ts-defs/.electron');
+const TS_DEFS_BUILD_PATH =
+  process.env.TARGET === 'wsdk'
+    ? path.join(__dirname, '../Builds/ts-defs/web-sdk')
+    : process.env.TARGET === 'rsdk'
+    ? path.join(__dirname, '../Builds/ts-defs/react-sdk')
+    : process.env.TARGET === 'android'
+    ? path.join(__dirname, '../Builds/ts-defs/android')
+    : path.join(__dirname, '../Builds/ts-defs/.electron');
 
-const pkgNameArg = process.argv.indexOf('--pkgname')
-const PACKAGE_NAME = pkgNameArg == -1
-  ?  'agora-app-builder-sdk'
-  : process.argv[pkgNameArg+1]
-
-let PRODUCT_NAME;
+const pkgNameArg = process.argv.indexOf('--pkgname');
+const PACKAGE_NAME =
+  pkgNameArg == -1 ? 'agora-app-builder-sdk' : process.argv[pkgNameArg + 1];
 
 const runCli = (cmd, cb) => {
   const [arg1, ...arg2] = cmd.split(' ');
@@ -68,28 +66,9 @@ const general = {
     return del([`${BUILD_PATH}/**/*`], {force: true});
   },
   packageJson: async (cb) => {
-    let package = JSON.parse(
+    let {version, private, author, description, dependencies} = JSON.parse(
       await fs.readFile(path.join(__dirname, 'package.json')),
     );
-    let {
-      name,
-      version,
-      private,
-      author,
-      description,
-      dependencies,
-      optionalDependencies,
-    } = package;
-    PRODUCT_NAME = name;
-    let nativeDeps = require('./nativeDeps').default;
-    let natives = {};
-    let searchDeps = {
-      ...dependencies,
-      ...optionalDependencies,
-    };
-    nativeDeps.map((k) => {
-      natives[k] = searchDeps[k];
-    });
 
     let newPackage = {
       name: PACKAGE_NAME,
@@ -97,16 +76,14 @@ const general = {
       private,
       author,
       description,
-      // dependencies: natives,
-      // agora_electron: {
-      //   electron_version: '5.0.8',
-      //   prebuilt: true,
-      // },
     };
 
     // Target specific changes
 
     if (process.env.TARGET === 'rsdk') {
+      if(pkgNameArg == -1){
+        newPackage.name = "@appbuilder/react"
+      }
       newPackage.main = 'index.js';
       newPackage.types = 'index.d.ts';
 
@@ -121,6 +98,9 @@ const general = {
     }
 
     if (process.env.TARGET === 'wsdk') {
+      if(pkgNameArg == -1){
+        newPackage.name = "@appbuilder/web"
+      }
       newPackage.main = 'app-builder-web-sdk.umd2.js';
       newPackage.types = 'index.d.ts';
     }
@@ -136,12 +116,23 @@ const general = {
   },
   typescript: (cb) => {
     runCli(
-      'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/fpe-api.d.ts',
+      'npx -p typescript tsc --project tsconfig_fpeApi.json --outFile ../Builds/customization-api.d.ts',
       () => cb(),
     );
   },
   typescriptFix: () => {
-    return src('../Builds/fpe-api.d.ts')
+    return src(['../Builds/customization-api.d.ts', './global.d.ts'])
+      .pipe(concat('./customization-api.d.ts'))
+      .pipe(
+        replace(
+          `declare var $config: ConfigInterface;
+declare module 'test-fpe' {
+  const data: {};
+  export default data;
+}`,
+          ' ',
+        ),
+      )
       .pipe(replace('"agora-rn-uikit"', '"agora-rn-uikit/src/index"'))
       .pipe(dest('../Builds/'));
   },
@@ -149,14 +140,17 @@ const general = {
     return del([`${path.join(BUILD_PATH, '../', '/')}*.d.ts`], {force: true});
   },
   genTsDefs: (cb) => {
-    runCli(`mkdir -p ${TS_DEFS_BUILD_PATH} && cp ${BUILD_PATH}/index.d.ts ${TS_DEFS_BUILD_PATH}/index.d.ts`, cb);
+    runCli(
+      `mkdir -p ${TS_DEFS_BUILD_PATH} && cp ${BUILD_PATH}/index.d.ts ${TS_DEFS_BUILD_PATH}/index.d.ts`,
+      cb,
+    );
   },
   useTsDefs: (cb) => {
-    runCli(`cp ${TS_DEFS_BUILD_PATH}/index.d.ts ${BUILD_PATH}/index.d.ts`, cb)
+    runCli(`cp ${TS_DEFS_BUILD_PATH}/index.d.ts ${BUILD_PATH}/index.d.ts`, cb);
   },
   npmPack: (cb) => {
-    runCli(`cd ${BUILD_PATH} && npm pack`, cb)
-  }
+    runCli(`cd ${BUILD_PATH} && npm pack`, cb);
+  },
 };
 
 const electron = {
@@ -197,15 +191,19 @@ const reactSdk = {
   esbuild: (cb) => {
     let outPath = '';
     if (outPathArg != -1) {
-      outPath = ` --outpath ${process.argv[outPathArg+1]}`
+      outPath = ` --outpath ${process.argv[outPathArg + 1]}`;
     }
     let configTransformerPath = '';
-    const configTransformerPathArg = process.argv.indexOf('--configtransformerpath')
+    const configTransformerPathArg = process.argv.indexOf(
+      '--configtransformerpath',
+    );
     if (configTransformerPathArg != -1) {
-      configTransformerPath = ` --configtransformerpath ${process.argv[configTransformerPathArg+1]}`
+      configTransformerPath = ` --configtransformerpath ${
+        process.argv[configTransformerPathArg + 1]
+      }`;
     }
-    let esbuildCmd = `go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk${outPath}${configTransformerPath}`
-    console.log(esbuildCmd)
+    let esbuildCmd = `go build -o ../esbuild-bin/rsdk ./esbuild.rsdk.go && ../esbuild-bin/rsdk${outPath}${configTransformerPath}`;
+    console.log(esbuildCmd);
     runCli(esbuildCmd, cb);
   },
   typescript: (cb) => {
@@ -216,7 +214,7 @@ const reactSdk = {
     );
   },
   typescriptFix: () => {
-    return src(['../Builds/fpe-api.d.ts', '../Builds/reactSdk.d.ts'])
+    return src(['../Builds/customization-api.d.ts', '../Builds/reactSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
@@ -224,11 +222,11 @@ const reactSdk = {
           'declare module "agora-app-builder-sdk"',
         ),
       )
-      .pipe(replace("'fpe-api'", "'fpe-api/index'"))
-      .pipe(replace('"fpe-api"', '"fpe-api/index"'))
+      .pipe(replace("'customization-api'", "'customization-api/index'"))
+      .pipe(replace('"customization-api"', '"customization-api/index"'))
       .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
-  }
+  },
 };
 
 const webSdk = {
@@ -242,7 +240,7 @@ const webSdk = {
     );
   },
   typescriptFix: () => {
-    return src(['../Builds/fpe-api.d.ts', '../Builds/webSdk.d.ts'])
+    return src(['../Builds/customization-api.d.ts', '../Builds/webSdk.d.ts'])
       .pipe(concat('index.d.ts'))
       .pipe(
         replace(
@@ -250,14 +248,14 @@ const webSdk = {
           'declare module "agora-app-builder-sdk"',
         ),
       )
-      .pipe(replace("'fpe-api'", "'fpe-api/index'"))
-      .pipe(replace('"fpe-api"', '"fpe-api/index"'))
+      .pipe(replace("'customization-api'", "'customization-api/index'"))
+      .pipe(replace('"customization-api"', '"customization-api/index"'))
       .pipe(header('// @ts-nocheck\n'))
       .pipe(dest(BUILD_PATH));
   },
   npmPack: (cb) => {
-    runCli('cd ../Builds/web-sdk && npm pack',cb)
-  }
+    runCli('cd ../Builds/web-sdk && npm pack', cb);
+  },
 };
 
 const android = {
@@ -324,7 +322,7 @@ module.exports.reactSdk = series(
 );
 
 // react-sdk-esbuild
-module.exports.reactSdkEsbuild = series (
+module.exports.reactSdkEsbuild = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
@@ -335,31 +333,31 @@ module.exports.reactSdkEsbuild = series (
   reactSdk.typescriptFix,
   general.typescriptClean,
   general.npmPack,
-)
+);
 
 // generate typescript definitions
-module.exports.makeRsdkTsDefs = series (
+module.exports.makeRsdkTsDefs = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
-  reactSdk.esbuild,
+  reactSdk.webpack,
   general.typescript,
   general.typescriptFix,
   reactSdk.typescript,
   reactSdk.typescriptFix,
   general.typescriptClean,
   general.genTsDefs,
-)
+);
 
 // react-sdk-esbuild with cached type definitions
-module.exports.reactSdkEsbuildCachedTsc = series (
+module.exports.reactSdkEsbuildCachedTsc = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
   reactSdk.esbuild,
   general.useTsDefs,
   general.npmPack,
-)
+);
 
 // web-sdk
 module.exports.webSdk = series(
@@ -400,10 +398,7 @@ module.exports.webSdkCachedTsc = series(
   general.clean,
   general.createBuildDirectory,
   general.packageJson,
-  parallel(
-    webSdk.webpack,
-    general.useTsDefs,
-  ),
+  parallel(webSdk.webpack, general.useTsDefs),
   general.npmPack,
 );
 
