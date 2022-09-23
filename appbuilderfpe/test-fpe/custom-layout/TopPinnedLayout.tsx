@@ -7,7 +7,7 @@ import {
   Text,
   Pressable,
 } from 'react-native';
-import {layoutComponent, RenderComponent, useRtcContext} from 'fpe-api';
+import {layoutComponent, RenderComponent, useRtc} from 'customization-api';
 const topPinned = true;
 
 const TopPinnedVideo: layoutComponent = ({renderData}) => {
@@ -27,7 +27,7 @@ const TopPinnedVideo: layoutComponent = ({renderData}) => {
   };
   // **********************************
   const isSidePinnedlayout = topPinned === true ? false : dim[2]; // if either explicity set to false or auto evaluation
-  const {dispatch} = useRtcContext();
+  const {dispatch} = useRtc();
   const [maxUid, ...minUids] = renderData;
   return (
     <View

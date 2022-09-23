@@ -1,4 +1,4 @@
-import {installFPE} from 'fpe-api/install';
+import {customize} from 'customization-api';
 import TopPinnedVideo from './custom-layout/TopPinnedLayout';
 import {CustomWrapperProvider} from './custom-wrapper/CustomWrapper';
 import {CustomMaxVideoView} from './custom-components/CustomMaxVideoView';
@@ -9,7 +9,7 @@ import CustomTopBar from './custom-components/CustomTopBar';
 import CustomChatInput from './custom-components/CustomChatInput';
 import CustomChatSendBtn from './custom-components/CustomChatSendBtn';
 
-const userCustomization = installFPE({
+const userCustomization = customize({
   appRoot: CustomWrapperProvider,
   components: {
     videoCall: {

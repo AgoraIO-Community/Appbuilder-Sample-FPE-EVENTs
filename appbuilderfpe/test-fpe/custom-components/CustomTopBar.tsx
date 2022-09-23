@@ -11,13 +11,19 @@
 */
 import React, {useContext} from 'react';
 import {View, Text, StyleSheet, ViewStyle} from 'react-native';
-import {useMeetingInfo, useRecording, NavBarComponentsArray} from 'fpe-api';
+import {
+  useMeetingInfo,
+  useRecording,
+  NavBarComponentsArray,
+} from 'customization-api';
 
 const CustomNavBar = () => {
   //commented for v1 release
   //const recordingLabel = useString('recordingLabel')();
   const recordingLabel = 'Recording';
-  const {meetingTitle} = useMeetingInfo();
+  const {
+    data: {meetingTitle},
+  } = useMeetingInfo();
   const {isRecordingActive} = useRecording();
   const [
     CopyJoinInfo,

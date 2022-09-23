@@ -1,4 +1,4 @@
-import {ControlsComponentsArray} from 'fpe-api';
+import {ControlsComponentsArray} from 'customization-api';
 import React from 'react';
 import {View} from 'react-native';
 

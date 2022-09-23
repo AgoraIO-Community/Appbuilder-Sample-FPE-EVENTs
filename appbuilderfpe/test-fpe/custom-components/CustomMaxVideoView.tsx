@@ -3,9 +3,9 @@ import {View, Text, StyleSheet} from 'react-native';
 import {
   NetworkQualityPill,
   RenderInterface,
-  NameWithMicStatus,
+  NameWithMicIcon,
   UiKitMaxVideoView,
-} from 'fpe-api';
+} from 'customization-api';
 
 interface MaxVideoRendererInterface {
   user: RenderInterface;
@@ -62,7 +62,7 @@ const CustomMaxVideoView: React.FC<MaxVideoRendererInterface> = ({user}) => {
         key={user.uid}
       />
       <View style={maxStyle.nameHolder}>
-        <NameWithMicStatus user={user} />
+        <NameWithMicIcon user={user} />
       </View>
     </View>
   );

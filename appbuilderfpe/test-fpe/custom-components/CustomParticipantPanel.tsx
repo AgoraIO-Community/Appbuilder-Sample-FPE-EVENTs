@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {ParticipantsView, useSetName, isWeb} from 'fpe-api';
+import {ParticipantsView, useUserName, useIsWeb} from 'customization-api';
 import {View, TextInput, Button, Dimensions} from 'react-native';
 const CustomParticipantPanel = () => {
+  const isWeb = useIsWeb();
   const [name, setName] = useState('');
-  const _useSetName = useSetName();
+  const [_, setNameHook] = useUserName();
 
   const [dim, setDim] = useState([
     Dimensions.get('window').width,
@@ -32,7 +33,7 @@ const CustomParticipantPanel = () => {
           <Button
             title="change name"
             onPress={() => {
-              _useSetName(name);
+              setNameHook(name);
             }}
           />
         </View>
@@ -42,7 +43,7 @@ const CustomParticipantPanel = () => {
   return (
     <View
       style={
-        isWeb
+        isWeb()
           ? isSmall
             ? {
                 position: 'absolute',

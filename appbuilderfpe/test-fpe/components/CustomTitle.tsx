@@ -1,39 +1,51 @@
-import {CustomEvents} from 'fpe-api';
+import {customEvents} from 'customization-api';
 import React from 'react';
 import {View, Button} from 'react-native';
 
 export default function CustomTitle() {
   React.useEffect(() => {
-    CustomEvents.on('test1', (data) => {
+    customEvents.on('test1', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
-    CustomEvents.on('test2', (data) => {
+    customEvents.on('test2', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
-    CustomEvents.on('test3', (data) => {
+    customEvents.on('test3', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
-    CustomEvents.on('test4', (data) => {
+    customEvents.on('test4', (data) => {
       console.log('CUSTOM_EVENT_API:FPE_EVENT callback test1: ', data);
     });
   }, []);
 
   const sendLevel1Message = () => {
-    CustomEvents.send('test1', {
-      value: 'level 1 value',
-    });
+    customEvents.send(
+      'test1',
+      JSON.stringify({
+        value: 'level 1 value',
+      }),
+      2,
+    );
   };
   const sendLevel2Message = () => {
-    CustomEvents.send('test2', {
-      value: 'level 2 value:',
-      level: 2,
-    });
+    customEvents.send(
+      'test2',
+      JSON.stringify({
+        value: 'level 2 value:',
+        level: 2,
+      }),
+      2,
+    );
   };
   const sendLevel3Message = () => {
-    CustomEvents.send('test3', {
-      value: 'level 3 value:',
-      level: 3,
-    });
+    customEvents.send(
+      'test3',
+      JSON.stringify({
+        value: 'level 3 value:',
+        level: 3,
+      }),
+      2,
+    );
   };
 
   return (

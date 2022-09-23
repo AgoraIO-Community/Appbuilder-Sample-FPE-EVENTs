@@ -4,7 +4,7 @@ import {
   useChatUIControl,
   useSendMessage,
   TextInput,
-} from 'fpe-api';
+} from 'customization-api';
 import React from 'react';
 import * as leoProfanity from 'leo-profanity';
 

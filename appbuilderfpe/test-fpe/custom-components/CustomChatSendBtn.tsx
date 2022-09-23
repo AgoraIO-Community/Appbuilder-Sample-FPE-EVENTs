@@ -5,7 +5,7 @@ import {
   MESSAGE_TYPE,
   useChatUIControl,
   useSendMessage,
-} from 'fpe-api';
+} from 'customization-api';
 import {TouchableOpacity, Image} from 'react-native';
 import * as leoProfanity from 'leo-profanity';
 

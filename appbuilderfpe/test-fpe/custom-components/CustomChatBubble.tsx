@@ -1,12 +1,5 @@
 import React, {useState} from 'react';
-import {
-  Button,
-  Text,
-  TextInput,
-  Touchable,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {
   ChatBubbleProps,
   ChatBubble,
@@ -15,9 +8,9 @@ import {
   MESSAGE_TYPE,
   useChatUIControl,
   useLocalUid,
-} from 'fpe-api';
+} from 'customization-api';
 import * as leoProfanity from 'leo-profanity';
-const CustomCmp = (props: ChatBubbleProps) => {
+const CustomChatBubble = (props: ChatBubbleProps) => {
   const [editActive, setEditActive] = useState(false);
   const editmsg = useEditMessage();
   const delmsg = useDeleteMessage();
@@ -110,4 +103,4 @@ const CustomCmp = (props: ChatBubbleProps) => {
   );
 };
 
-export default CustomCmp;
+export default CustomChatBubble;
