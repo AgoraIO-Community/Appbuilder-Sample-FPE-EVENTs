@@ -3,17 +3,14 @@ import {Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {
   ChatBubbleProps,
   ChatBubble,
-  useEditMessage,
-  useDeleteMessage,
-  MESSAGE_TYPE,
+  useMessages,
   useChatUIControl,
   useLocalUid,
 } from 'customization-api';
 import * as leoProfanity from 'leo-profanity';
 const CustomChatBubble = (props: ChatBubbleProps) => {
   const [editActive, setEditActive] = useState(false);
-  const editmsg = useEditMessage();
-  const delmsg = useDeleteMessage();
+  const {editMessage, deleteMessage} = useMessages();
   const localUid = useLocalUid();
   const {privateActive, selectedChatUserId} = useChatUIControl();
   const [editMsgLocal, setEditMsgLocal] = useState('');
@@ -38,8 +35,7 @@ const CustomChatBubble = (props: ChatBubbleProps) => {
           <TouchableOpacity
             onPress={() => {
               //do edit
-              editmsg(
-                privateActive ? MESSAGE_TYPE.private : MESSAGE_TYPE.group,
+              editMessage(
                 props.msgId,
                 editMsgLocal,
                 privateActive ? selectedChatUserId : undefined,
@@ -87,8 +83,7 @@ const CustomChatBubble = (props: ChatBubbleProps) => {
               <TouchableOpacity
                 style={{marginHorizontal: 10}}
                 onPress={() => {
-                  delmsg(
-                    privateActive ? MESSAGE_TYPE.private : MESSAGE_TYPE.group,
+                  deleteMessage(
                     props.msgId,
                     privateActive ? selectedChatUserId : undefined,
                   );

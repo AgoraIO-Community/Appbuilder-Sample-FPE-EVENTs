@@ -2,9 +2,8 @@ import React from 'react';
 import {
   ChatSendButtonProps,
   icons,
-  MESSAGE_TYPE,
   useChatUIControl,
-  useSendMessage,
+  useMessages,
 } from 'customization-api';
 import {TouchableOpacity, Image} from 'react-native';
 import * as leoProfanity from 'leo-profanity';
@@ -15,17 +14,13 @@ export default function CustomChatSendBtn(props: ChatSendButtonProps) {
     message,
     setMessage,
   } = useChatUIControl();
-  const sendChatMessage = useSendMessage();
+  const {sendMessage} = useMessages();
   const onPress = () => {
     if (!selectedUserId) {
-      sendChatMessage(MESSAGE_TYPE.group, leoProfanity.clean(message));
+      sendMessage(leoProfanity.clean(message));
       setMessage && setMessage('');
     } else {
-      sendChatMessage(
-        MESSAGE_TYPE.private,
-        leoProfanity.clean(message),
-        selectedUserId,
-      );
+      sendMessage(leoProfanity.clean(message), selectedUserId);
       setMessage && setMessage('');
     }
   };

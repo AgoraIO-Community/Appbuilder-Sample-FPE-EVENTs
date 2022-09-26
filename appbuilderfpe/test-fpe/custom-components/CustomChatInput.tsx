@@ -1,8 +1,7 @@
 import {
   ChatTextInputProps,
-  MESSAGE_TYPE,
   useChatUIControl,
-  useSendMessage,
+  useMessages,
   TextInput,
 } from 'customization-api';
 import React from 'react';
@@ -14,19 +13,15 @@ export default function CustomChatInput(props: ChatTextInputProps) {
     message,
     setMessage,
   } = useChatUIControl();
-  const sendChatMessage = useSendMessage();
+  const {sendMessage} = useMessages();
   const chatMessageInputPlaceholder = 'Type your message..';
   const onChangeText = (text: string) => setMessage(text);
   const onSubmitEditing = () => {
     if (!selectedUserId) {
-      sendChatMessage(MESSAGE_TYPE.group, leoProfanity.clean(message));
+      sendMessage(leoProfanity.clean(message));
       setMessage('');
     } else {
-      sendChatMessage(
-        MESSAGE_TYPE.private,
-        leoProfanity.clean(message),
-        selectedUserId,
-      );
+      sendMessage(leoProfanity.clean(message), selectedUserId);
       setMessage('');
     }
   };
