@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
-import {ParticipantsView, useUserName, useIsWeb} from 'customization-api';
-import {View, TextInput, Button, Dimensions} from 'react-native';
+import {ParticipantsView, useUserName} from 'customization-api';
+import {View, TextInput, Button, Dimensions, Platform} from 'react-native';
 const CustomParticipantPanel = () => {
-  const isWeb = useIsWeb();
   const [name, setName] = useState('');
   const [_, setNameHook] = useUserName();
 
@@ -43,7 +42,7 @@ const CustomParticipantPanel = () => {
   return (
     <View
       style={
-        isWeb()
+        Platform.OS === 'web'
           ? isSmall
             ? {
                 position: 'absolute',
