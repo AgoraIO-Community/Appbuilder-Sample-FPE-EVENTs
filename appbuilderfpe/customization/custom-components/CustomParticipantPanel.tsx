@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {ParticipantsView, useUserName, config} from 'customization-api';
+import {ParticipantsView, useUserName, $config} from 'customization-api';
 import {View, TextInput, Button, Dimensions, Platform} from 'react-native';
 const CustomParticipantPanel = () => {
   const [name, setName] = useState('');
@@ -18,7 +18,7 @@ const CustomParticipantPanel = () => {
         style={{
           flex: 0.5,
           justifyContent: 'center',
-          backgroundColor: config.SECONDARY_FONT_COLOR,
+          backgroundColor: $config.SECONDARY_FONT_COLOR,
           paddingHorizontal: 10,
         }}>
         <TextInput
@@ -57,8 +57,8 @@ const CustomParticipantPanel = () => {
                 minWidth: 200,
                 maxWidth: 300,
                 flex: 1,
-                backgroundColor: config.SECONDARY_FONT_COLOR,
-                shadowColor: config.PRIMARY_FONT_COLOR + '80',
+                backgroundColor: $config.SECONDARY_FONT_COLOR,
+                shadowColor: $config.PRIMARY_FONT_COLOR + '80',
                 shadowOpacity: 0.5,
                 shadowOffset: {width: -2, height: 0},
                 shadowRadius: 3,

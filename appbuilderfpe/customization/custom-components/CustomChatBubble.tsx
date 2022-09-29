@@ -6,7 +6,7 @@ import {
   useMessages,
   useChatUIControl,
   useLocalUid,
-  config,
+  $config,
 } from 'customization-api';
 import * as leoProfanity from 'leo-profanity';
 const CustomChatBubble = (props: ChatBubbleProps) => {
@@ -27,7 +27,7 @@ const CustomChatBubble = (props: ChatBubbleProps) => {
             borderRadius: 20,
             borderWidth: 2,
             paddingHorizontal: 10,
-            borderColor: config.PRIMARY_COLOR,
+            borderColor: $config.PRIMARY_COLOR,
           }}
           placeholder={'Edit message'}
           onChangeText={(txt) => setEditMsgLocal(txt)}
