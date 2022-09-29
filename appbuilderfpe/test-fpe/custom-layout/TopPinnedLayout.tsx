@@ -7,7 +7,12 @@ import {
   Text,
   Pressable,
 } from 'react-native';
-import {layoutComponent, RenderComponent, useRtc} from 'customization-api';
+import {
+  layoutComponent,
+  RenderComponent,
+  useRtc,
+  config,
+} from 'customization-api';
 const topPinned = true;
 
 const TopPinnedVideo: layoutComponent = ({renderData}) => {
@@ -47,7 +52,7 @@ const TopPinnedVideo: layoutComponent = ({renderData}) => {
             width: 35,
             height: 35,
             marginLeft: collapse ? 5 : '20.1%',
-            backgroundColor: $config.SECONDARY_FONT_COLOR + 'aa',
+            backgroundColor: config.SECONDARY_FONT_COLOR + 'aa',
             borderRadius: 50,
             justifyContent: 'center',
           }}>
@@ -55,7 +60,7 @@ const TopPinnedVideo: layoutComponent = ({renderData}) => {
             style={{
               alignSelf: 'center',
               justifyContent: 'center',
-              color: $config.PRIMARY_COLOR,
+              color: config.PRIMARY_COLOR,
               fontWeight: '500',
               fontSize: 20,
             }}>

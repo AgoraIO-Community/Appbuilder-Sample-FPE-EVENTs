@@ -4,6 +4,7 @@ import {
   icons,
   useChatUIControl,
   useMessages,
+  config,
 } from 'customization-api';
 import {TouchableOpacity, Image} from 'react-native';
 import * as leoProfanity from 'leo-profanity';
@@ -33,7 +34,7 @@ export default function CustomChatSendBtn(props: ChatSendButtonProps) {
         borderRadius: 30,
         alignSelf: 'center',
         marginHorizontal: 10,
-        backgroundColor: $config.PRIMARY_COLOR,
+        backgroundColor: config.PRIMARY_COLOR,
         display: 'flex',
         justifyContent: 'center',
       }}

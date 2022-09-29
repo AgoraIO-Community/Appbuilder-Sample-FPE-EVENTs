@@ -3,6 +3,7 @@ import {
   useChatUIControl,
   useMessages,
   TextInput,
+  config,
 } from 'customization-api';
 import React from 'react';
 import * as leoProfanity from 'leo-profanity';
@@ -33,10 +34,10 @@ export default function CustomChatInput(props: ChatTextInputProps) {
         onChangeText={onChangeText}
         style={{
           borderRadius: 10,
-          backgroundColor: $config.PRIMARY_FONT_COLOR + '10',
-          borderColor: $config.PRIMARY_COLOR,
+          backgroundColor: config.PRIMARY_FONT_COLOR + '10',
+          borderColor: config.PRIMARY_COLOR,
           borderWidth: 1,
-          color: $config.PRIMARY_FONT_COLOR,
+          color: config.PRIMARY_FONT_COLOR,
           textAlign: 'left',
           height: 40,
           paddingVertical: 10,
@@ -46,7 +47,7 @@ export default function CustomChatInput(props: ChatTextInputProps) {
         blurOnSubmit={false}
         onSubmitEditing={onSubmitEditing}
         placeholder={chatMessageInputPlaceholder}
-        placeholderTextColor={$config.PRIMARY_FONT_COLOR}
+        placeholderTextColor={config.PRIMARY_FONT_COLOR}
         autoCorrect={false}
       />
     </>
