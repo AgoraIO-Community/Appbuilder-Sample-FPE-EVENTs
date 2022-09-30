@@ -31,5 +31,5 @@
   "RAISE_HAND": true,
   "GEO_FENCING": true,
   "LOG_ENABLED": true,
-  "AUDIO_ROOM": false
+  "AUDIO_ROOM": true
 }
