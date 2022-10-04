@@ -1,8 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {
-  CustomizationApiInterface,
-  customize,
-} from 'customization-api';
+import {CustomizationApiInterface, customize} from 'customization-api';
 import {
   customizationConfig,
   CustomizationProvider,
@@ -30,12 +27,10 @@ export interface userEventsMapInterface {
 
 export interface AppBuilderSdkApiInterface {
   customize: (customization: CustomizationApiInterface) => void;
-  createCustomization: (customization: CustomizationApiInterface) => CustomizationApiInterface;
-  join: (
-    roomid: string,
-    resolve: () => void,
-    reject: () => void,
-  ) => Promise<void>;
+  createCustomization: (
+    customization: CustomizationApiInterface,
+  ) => CustomizationApiInterface;
+  join: (roomid: string) => Promise<void>;
   on: <T extends keyof userEventsMapInterface>(
     userEventName: T,
     callBack: userEventsMapInterface[T],
@@ -64,6 +59,7 @@ const SDKAppWrapper = () => {
       console.log('SDKEvents: addFpe event called');
       setFpe(sdkFpeConfig);
     });
+    SDKEvents.emit('addFpeInit');
     // Join event consumed in Create.tsx
   }, []);
   return (
