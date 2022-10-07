@@ -10,14 +10,14 @@ import CustomChatInput from './custom-components/CustomChatInput';
 import CustomChatSendBtn from './custom-components/CustomChatSendBtn';
 
 const userCustomization = customize({
-  appRoot: CustomWrapperProvider,
   components: {
+    appRoot: CustomWrapperProvider,
     videoCall: {
       topBar: CustomTopBar,
       chat: {
         chatBubble: CustomChatBubble,
         chatInput: CustomChatInput,
-        chatSentButton: CustomChatSendBtn,
+        chatSendButton: CustomChatSendBtn,
       },
       participantsPanel: CustomParticipantPanel,
       //bottomBar: CustomTitle,
