@@ -11,22 +11,22 @@ import CustomChatSendBtn from './custom-components/CustomChatSendBtn';
 
 const userCustomization = customize({
   components: {
-    appRoot: CustomWrapperProvider,
+    //appRoot: CustomWrapperProvider,
     videoCall: {
-      topBar: CustomTopBar,
-      chat: {
-        chatBubble: CustomChatBubble,
-        chatInput: CustomChatInput,
-        chatSendButton: CustomChatSendBtn,
-      },
-      participantsPanel: CustomParticipantPanel,
-      //bottomBar: CustomTitle,
-      customContent: {
-        rtc: CustomMaxVideoView,
-      },
+      // topBar: CustomTopBar,
+      // chat: {
+      //   chatBubble: CustomChatBubble,
+      //   chatInput: CustomChatInput,
+      //   chatSendButton: CustomChatSendBtn,
+      // },
+      // participantsPanel: CustomParticipantPanel,
+      // //bottomBar: CustomTitle,
+      // customContent: {
+      //   rtc: CustomMaxVideoView,
+      // },
       customLayout(defaultLayouts) {
         return [
-          ...defaultLayouts,
+          //...defaultLayouts,
           {
             component: TopPinnedVideo,
             label: 'Top Pinned Layout',
@@ -37,17 +37,17 @@ const userCustomization = customize({
       },
     },
   },
-  i18n: [
-    {
-      locale: 'en-us',
-      label: 'English',
-      data: {
-        joinRoomButton: 'Join Room edited',
-        meetingNameInputPlaceholder: 'Room name edited',
-        pstnUserLabel: 'PSTN USER',
-      },
-    },
-  ],
+  // i18n: [
+  //   {
+  //     locale: 'en-us',
+  //     label: 'English',
+  //     data: {
+  //       joinRoomButton: 'Join Room edited',
+  //       meetingNameInputPlaceholder: 'Room name edited',
+  //       pstnUserLabel: 'PSTN USER',
+  //     },
+  //   },
+  // ],
 });
 
 export default userCustomization;
