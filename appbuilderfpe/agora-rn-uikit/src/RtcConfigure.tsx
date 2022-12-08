@@ -13,7 +13,6 @@ import PropsContext, {
   DualStreamMode,
 } from './Contexts/PropsContext';
 import {RenderProvider} from './Contexts/RenderContext';
-import {LastJoinedUserProvider} from './Contexts/LastJoinedUserContext';
 import {actionTypeGuard} from './Utils/actionTypeGuard';
 
 import {
@@ -48,6 +47,7 @@ const RtcConfigure = (props: {children: React.ReactNode}) => {
       },
     },
     activeUids: [localUid],
+    lastJoinedUid: 0,
   };
 
   const [initialState, setInitialState] = React.useState(
@@ -322,11 +322,9 @@ const RtcConfigure = (props: {children: React.ReactNode}) => {
               value={{
                 renderList: uidState.renderList,
                 activeUids: uidState.activeUids,
+                lastJoinedUid: uidState.lastJoinedUid,
               }}>
-              <LastJoinedUserProvider
-                value={{lastUserJoined: uidState.lastJoinedUser}}>
-                {props.children}
-              </LastJoinedUserProvider>
+              {props.children}
             </RenderProvider>
           </RtcProvider>
         </Join>
