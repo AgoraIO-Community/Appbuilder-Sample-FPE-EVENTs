@@ -36,6 +36,7 @@ const RenderSeparator = () => {
 };
 
 //Timer component
+//test comment
 const Timer = () => {
   const [startTime, setStartTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
