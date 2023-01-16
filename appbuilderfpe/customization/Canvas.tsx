@@ -7,9 +7,16 @@ const Canvas = (props) => {
 
   return (
     <canvas
-      style={{border: '1px solid red', width: '1000px', height: '500px'}}
+      style={{
+        border: '1px solid red',
+        width: '800px',
+        height: '600px',
+        margin: '200px auto',
+      }}
       ref={canvasRef}
       {...rest}
+      width="800"
+      height="600"
     />
   );
 };
