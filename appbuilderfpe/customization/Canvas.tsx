@@ -11,7 +11,7 @@ const Canvas = (props) => {
         border: '1px solid red',
         width: '800px',
         height: '600px',
-        margin: '200px auto',
+        margin: '100px auto',
       }}
       ref={canvasRef}
       {...rest}
