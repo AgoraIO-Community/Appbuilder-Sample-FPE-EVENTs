@@ -90,7 +90,7 @@ const Popup = (props) => {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>
-            {counter > 0 ? 'Time Left to start the Game' : 'Game Ended '}
+            {counter > 0 ? 'Time Remaining in the Game' : 'Game Ended '}
             {
               <CountDown
                 time={counter}
