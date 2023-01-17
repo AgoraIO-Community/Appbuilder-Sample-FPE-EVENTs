@@ -20,19 +20,23 @@ const GameButton = () => {
   const [gameStarted, setGameStarted] = React.useState(false);
   const [counter, setCounter] = React.useState(timer);
   const {name, uid} = useLocalUserInfo();
+  const [isGameHost, setisGameHost] = React.useState(true);
 
   const handleGameStart = React.useCallback((event) => {
     // send event in channel to open popup
     const startTime = Date.now();
     const payload = JSON.stringify({startTime, counter, gameStartedBy: uid});
     customEvents.send('event_gameOn', payload, 2);
+
+    //setCounter(timer);
     setGameStarted((prev) => true);
   }, []);
 
   customEvents.on('event_gameOn', (data) => {
     const res = JSON.parse(data.payload);
     const diff = Math.floor((Date.now() - Number(res.startTime)) / 1000);
-    const meStarted = uid === data.sender;
+
+    setisGameHost(uid === data.sender);
 
     if (diff < timer) {
       // game is still running ;
@@ -54,6 +58,7 @@ const GameButton = () => {
         initialTimerValue={timer}
         counter={counter}
         setCounter={setCounter}
+        isGameHost={isGameHost}
       />
       <TouchableOpacity
         style={styles.iconContainer}
@@ -91,13 +96,19 @@ const MyBottomBar = (props) => {
   );
 };
 
-const MyParticipantsPanel = (props) => {
+const MyParticipantsPanel = () => {
+  const {renderList, activeUids} = useRender();
+  console.log(activeUids);
+  customEvents.on('event_gameOver', (data) => {
+    const res = JSON.parse(data.payload);
+    console.log('players', res);
+  });
   return (
-    <ParticipantsView
-      render={() => {
-        console.log('hi');
-      }}
-    />
+    <View style={styles.container1}>
+      <View style={styles.textContainer1}>
+        <Text style={styles.textStyle1}>Customized Participants Panel</Text>
+      </View>
+    </View>
   );
 };
 
@@ -145,6 +156,26 @@ const styles = StyleSheet.create({
     borderRadius: 30,
   },
   textStyle: {
+    padding: 10,
+    fontSize: 18,
+    textAlign: 'center',
+    lineHeight: 30,
+  },
+  container1: {
+    flex: 1,
+    backgroundColor: '#90EE90',
+    justifyContent: 'center',
+    width: '20%',
+    minWidth: 200,
+    maxWidth: 300,
+  },
+  textContainer1: {
+    flex: 1,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    maxHeight: 200,
+  },
+  textStyle1: {
     padding: 10,
     fontSize: 18,
     textAlign: 'center',
