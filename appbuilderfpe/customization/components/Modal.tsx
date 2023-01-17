@@ -33,6 +33,7 @@ const Popup = (props) => {
     counter,
     setCounter,
     setGameStarted,
+    isGameHost,
   } = props;
   const [boardOffset, setBoardOffset] = useState({x: 0, y: 0});
   const [selfPosition, setSelfPosition] = useState({x: 300, y: 150});
@@ -75,6 +76,7 @@ const Popup = (props) => {
 
   const onTimerComplete = React.useCallback(() => {
     console.log('timer over =>', players);
+    customEvents.send('event_gameOver', JSON.stringify(players), 2);
   }, []);
 
   return (
@@ -125,13 +127,17 @@ const Popup = (props) => {
             {/* local player */}
             <Player position={selfPosition} color="#a22058" name={name} />
           </div>
-          <Pressable
-            style={[styles.button, styles.buttonClose]}
-            onPress={() => {
-              setModalVisible(!modalVisible);
-            }}>
-            <Text style={styles.textStyle}> Close</Text>
-          </Pressable>
+          {isGameHost && (
+            <Pressable
+              style={[styles.button, styles.buttonClose]}
+              onPress={() => {
+                // setModalVisible(!modalVisible);
+                setGameStarted(false);
+                //setCounter(initialTimerValue);
+              }}>
+              <Text style={styles.textStyle}> Close</Text>
+            </Pressable>
+          )}
         </View>
       </View>
     </Modal>
