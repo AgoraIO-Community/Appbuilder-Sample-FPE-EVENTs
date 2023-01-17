@@ -29,7 +29,7 @@ const useCanvas = (draw, options = {}) => {
       y: canvas.height / 2,
     };
 
-    function Circle(x, y, r, dy) {
+    function Circle(x, y, r, dy, text) {
       this.r = r;
       this.dy = dy;
       this.update = function (x, y) {
@@ -37,6 +37,10 @@ const useCanvas = (draw, options = {}) => {
         context.arc(x, y, this.r, 0, Math.PI * 2);
         context.fillStyle = 'blue';
         context.fill();
+        context.font = '12pt Calibri';
+        context.fillStyle = 'white';
+        context.textAlign = 'center';
+        context.fillText(text, x, y + 3);
         // context.stroke();
         this.y += this.dy;
         if (this.y < this.r || this.y + this.r > canvas.height) {
@@ -47,7 +51,8 @@ const useCanvas = (draw, options = {}) => {
     console.log(mouse.x, mouse.y, activeUids, 'activeUids');
 
     for (let i = 0; i < activeUids.length; i++) {
-      let newCircle = new Circle(mouse.x, mouse.y, 10, 2);
+      const text = renderList[activeUids[i]].name.substring(0, 2);
+      let newCircle = new Circle(mouse.x, mouse.y, 30, 2, text);
       let circleConfig = {
         circle: newCircle,
         x: mouse.x,
@@ -55,8 +60,6 @@ const useCanvas = (draw, options = {}) => {
       };
       userCircleMap[activeUids[i]] = circleConfig;
     }
-
-    console.log(mouse.x, mouse.y, userCircleMap, 'userCircleMap');
 
     function animate() {
       context.clearRect(0, 0, canvas.width, canvas.height);
