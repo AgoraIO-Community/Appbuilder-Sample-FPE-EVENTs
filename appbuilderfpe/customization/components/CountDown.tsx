@@ -6,9 +6,10 @@ function CountDown({time, setTime, setGameStarted, onTimerComplete}) {
     let timer = setInterval(() => {
       setTime((time) => {
         if (time === 0) {
+          onTimerComplete();
           clearInterval(timer);
           setGameStarted(false);
-          onTimerComplete();
+
           return 0;
         } else return time - 1;
       });

@@ -1,11 +1,14 @@
 import React from 'react';
-import {customize, customEvents, ParticipantsView} from 'customization-api';
-import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
 import {
+  customize,
+  customEvents,
+  ParticipantsView,
   useRender,
   ControlsComponentsArray,
-  ChatBubble,
+  useLocalUserInfo,
 } from 'customization-api';
+import {Text, StyleSheet, View, TouchableOpacity} from 'react-native';
+
 import Popup from './components/Modal';
 /* Custom imports
 import NewCustomLayout from './pages/NewCustomLayout';
@@ -16,11 +19,12 @@ const timer = 60;
 const GameButton = () => {
   const [gameStarted, setGameStarted] = React.useState(false);
   const [counter, setCounter] = React.useState(timer);
+  const {name, uid} = useLocalUserInfo();
 
-  const handleGameStart = React.useCallback(() => {
+  const handleGameStart = React.useCallback((event) => {
     // send event in channel to open popup
     const startTime = Date.now();
-    const payload = JSON.stringify({startTime, counter});
+    const payload = JSON.stringify({startTime, counter, gameStartedBy: uid});
     customEvents.send('event_gameOn', payload, 2);
     setGameStarted((prev) => true);
   }, []);
@@ -28,6 +32,7 @@ const GameButton = () => {
   customEvents.on('event_gameOn', (data) => {
     const res = JSON.parse(data.payload);
     const diff = Math.floor((Date.now() - Number(res.startTime)) / 1000);
+    const meStarted = uid === data.sender;
 
     if (diff < timer) {
       // game is still running ;
@@ -41,12 +46,7 @@ const GameButton = () => {
   customEvents.on('event_gameOff', (data) => setGameStarted(false));
 
   return (
-    <TouchableOpacity style={styles.iconContainer} onPress={handleGameStart}>
-      <View style={styles.gameBtn}>
-        <Text style={{color: '#fff'}}>G</Text>
-      </View>
-      <Text>{!gameStarted ? `Start Game ` : `End Game `}</Text>
-
+    <>
       <Popup
         modalVisible={gameStarted}
         setGameStarted={setGameStarted}
@@ -55,7 +55,16 @@ const GameButton = () => {
         counter={counter}
         setCounter={setCounter}
       />
-    </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.iconContainer}
+        onPress={handleGameStart}
+        data-id="play">
+        <View style={styles.gameBtn}>
+          <Text style={{color: '#fff'}}>G</Text>
+        </View>
+        <Text>{!gameStarted ? `Start Game ` : `End Game `}</Text>
+      </TouchableOpacity>
+    </>
   );
 };
 
